@@ -60,6 +60,9 @@ class ListaDobleReproduccion {
                         reproduciendo = true;     //boleno para play
                         player.play();
                         reproduciendo = false;    //boleano para play
+                        
+
+                        //siguiente(); // Esto hace que al terminar una canción se reproduzca el siguiente
                     } catch (JavaLayerException e) {
                         e.printStackTrace();
                     }
