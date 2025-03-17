@@ -24,7 +24,7 @@ class ListaDobleReproduccion {
     private NodoCancion cabeza, cola, actual;
     private AdvancedPlayer player;
     private Thread playThread;
-    private boolean reproduciendo = false;
+    private boolean reproduciendo = false;  // boleano para play
     
     public void agregarCancion(String nombre, String ruta) {
         NodoCancion nueva = new NodoCancion(nombre, ruta);
@@ -46,7 +46,7 @@ class ListaDobleReproduccion {
     }
     
     public void reproducir() {
-        if (reproduciendo) {
+        if (reproduciendo) { // El condicional para el play
             System.out.println("Ya se está reproduciendo una canción.");
             return;
         }
@@ -57,9 +57,9 @@ class ListaDobleReproduccion {
                 player = new AdvancedPlayer(fileInputStream);
                 playThread = new Thread(() -> {
                     try {
-                        reproduciendo = true;
+                        reproduciendo = true;     //boleno para play
                         player.play();
-                        reproduciendo = false;
+                        reproduciendo = false;    //boleano para play
                     } catch (JavaLayerException e) {
                         e.printStackTrace();
                     }
@@ -92,7 +92,7 @@ class ListaDobleReproduccion {
         if (player != null) {
             player.close();
             playThread.interrupt();
-            reproduciendo = false;
+            reproduciendo = false;  //Boolen para el play
         }
     }
 }
