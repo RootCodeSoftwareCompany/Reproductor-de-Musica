@@ -105,18 +105,19 @@ public class ReproductorMusica extends JFrame {
         
         JButton playBtn = new JButton("▶ Play");
         JButton stopBtn = new JButton("■ Stop");
-        JButton nextBtn = new JButton("⏭ Siguiente");
         JButton prevBtn = new JButton("⏮ Anterior");
+        JButton nextBtn = new JButton("⏭ Siguiente");
+        
         
         playBtn.addActionListener(e -> listaReproduccion.reproducir());
         stopBtn.addActionListener(e -> listaReproduccion.detener());
-        nextBtn.addActionListener(e -> listaReproduccion.siguiente());
         prevBtn.addActionListener(e -> listaReproduccion.anterior());
+        nextBtn.addActionListener(e -> listaReproduccion.siguiente());
         
         add(playBtn);
         add(stopBtn);
-        add(nextBtn);
         add(prevBtn);
+        add(nextBtn);
     }
     
     public static void main(String[] args) {
