@@ -12,5 +12,7 @@ module Reproducir {
     requires javafx.media;
     requires javafx.swing;
     requires javafx.web;
+    requires java.desktop;
+    requires java.logging;
     opens reproducir to javafx.graphics;
 }
