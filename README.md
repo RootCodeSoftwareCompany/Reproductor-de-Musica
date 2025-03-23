@@ -109,28 +109,90 @@ Cuando hayamos terminado nuestra jornada de trabajo subimos los cambios al repos
 Para esto `Team > Remote > Push...`
 ![](/images/team-remote-push.png)
 
-En esta ventana el **Remote Repository** se agrega automáticamente > **Next**
+En esta ventana el **Remote Repository** se agrega automáticamente. 
 
 ![](/images/repositorio-remoto.png)
+
+Pero nos genera un inconveniente, esa ruta que se agrega autocompleta el **User** y **Password** de nuestra cuenta con la cual hicimos el `clone` y si seguimos adelante al terminar nos saldrá esta ventana: 
+
+![](/images/ventana-user-password.png)
+
+Y aunque le de demos **Ok** mucha veces volverá a salir, y si le damos a **Cancel** sale una ventana, que si deslizamos la barra inferior podemos ver que al final del texto dice **not authorized**.
+
+![](/images/no-autorizado.png)
+
+Para solucionar esto debemos ir a GitHub y crear un **Token**
+
+Presionas en la imagen de perfil de tu GitHub y te da estas opciones > **Settings**
+![](/images/opciones-perfil-github.png)
+
+Es settings desliza hasta abajo
+
+![](/images/settings.png)
+
+Entra en **Developer settings**
+
+![](/images/developer-settings.png)
+
+**Personal access tokens > Tokens (classic)**
+
+![](/images/tokens-de-acceso.png)
+
+**Generate new token > Generate new token (classic)**
+
+![](/images/generar-nuevo-token.png)
+
+Ponerle un nombre al token en **Note**  y podrías cambiar el tiempo de Expiración (pero no es necesario)
+
+![](/images/nombre-token.png)
+
+Desliza hacia abajo y marca todas opciones
+
+![](/images/selecionar-todos.png)
+
+Darle a **Generar token**
+
+![](/images/crear-token.png)
+
+**copia** tu nuevo token
+
+![](/images/copiar-token.png)
+
+Ahora al hacer `Team > remote > push...`
+
+Selecciona **Specify Git Repository Location** y cambia tu **Password** por el token > **Next**
+
+![](/images/token-password.png)
+
 
 **Select Local Branches** seleccionamos nuestra rama > **Next**
 
 ![](/images/rama-local.png)
 
-Confirmamos que se suba a la rama remota > **Yes**
+**Update Local References** debe estar seleccionada nuestra rama > **Finish**
+
+![](/images/seleccionar-rama-remota.png)
+
+Si nos sale esta ventana > **Yes**
 
 ![](/images/confirmar-subir-a-rama-remota.png)
 
-Ya se subió los cambios a la rama que creamos en el repositorio. Pero no se agregó a la rama `develop`
+Ya se subió los cambios a la rama que creamos en el repositorio. Pero no se agregó a la rama `develop` para que se agregue debemos solicitar un `pull request`.
 
-Vemos el mensaje **This branch is 1 commit ahead of develop** lo que quiere decir que tiene un commit más que nuestra rama principal `develop`  
+---
+### Pull request 
+
+Después de haber echo un push si vamos al repositorio en la rama `develop` en GitHub posiblemente nos aparezca este mensaje
+
+![](/images/compare-pull-request.png)
+
+Si le damos al botón verde **Compare & pull request** nos manda directamente la ventana para crear el pull request
+
+En otro caso vemos el mensaje **This branch is 1 commit ahead of develop** lo que quiere decir que tiene un commit más que nuestra rama principal `develop`  
 
 ![](/images/contenido-rama-remota.png)
 
-Para que ese agregue ese cambio debemos hacer una solicitud `pull request`
-
 **clic** en el texto  "***1 commit ahead of***" resaltado en azul
-### Pull request 
 
 Nos manda a esta sección **Comparing Changes** :
 Entre el branch `develop` <-- `alexcris` 
