@@ -1,6 +1,6 @@
-Debes ser colaborador del repositorio.
+## Como contribuir en GitHub desde NetBeans
 
-Veremos como hacerlo desde NetBeans
+Lo primera condicione es que debes ser colaborador del repositorio.
 
 ---
 ### Clonar el repositorio
