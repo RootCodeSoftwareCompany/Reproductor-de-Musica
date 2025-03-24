@@ -295,7 +295,7 @@ Y así ya tendríamos el repositorio local actualizado.
 ![](/images/repositorio-local-actualizado.png)
 
 
-**NOTA: No hacer clone, push o pull a la rama `master`, la rama habilitada para colaborar es la rama `develop`.**
+**NOTA**: No hacer clone, push o pull a la rama `master`, la rama habilitada para colaborar es la rama `develop`.
 
 
 
