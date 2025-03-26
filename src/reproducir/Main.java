@@ -13,9 +13,9 @@ import javax.swing.SwingUtilities;
 public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
-        Reproductor.aniadir("audio", "/home/gos/Descargas/audio.mp3");
+        Reproductor.aniadir("Believer","Canciones/Believer.mp3");
 
-        Reproductor.aniadir("Demons", "/home/gos/Descargas/Novi.mp3");
+        Reproductor.aniadir("Demons","Canciones/Demons.mp3");
 
         Reproductor.aniadir("Radioactive", "Canciones/Radioactive.mp3");
         
