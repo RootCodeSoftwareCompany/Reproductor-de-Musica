@@ -12,6 +12,7 @@ dist/
 nbdist/
 .nb-gradle/
 
+README.md
 
 # End of https://www.toptal.com/developers/gitignore/api/netbeans
 /mavenproject1/target/
