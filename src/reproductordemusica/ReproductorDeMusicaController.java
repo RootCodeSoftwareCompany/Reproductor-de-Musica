@@ -1,11 +1,15 @@
 package reproductordemusica;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import java.io.File;
 
@@ -14,14 +18,18 @@ public class ReproductorDeMusicaController {
     private MediaPlayer mediaPlayer;
     private final ListaDobleCircularReproduccion listaReproduccion = new ListaDobleCircularReproduccion();
     private NodoCancion actual;
-    private boolean enPausa = false; // Para controlar el estado de pausa
+    private boolean enPausa = false;
 
     @FXML
-    private Label labelCancion; // Etiqueta para mostrar información de la canción
+    private Label labelCancion;
     @FXML
-    private Slider sliderVolumen; // Slider para el volumen
+    private Slider sliderVolumen;
     @FXML
-    private Slider sliderProgreso; // Slider para el progreso de la canción
+    private Slider sliderProgreso;
+    @FXML
+    private Label tiempoTranscurrido;
+    @FXML
+    private Label tiempoRestante;
 
     @FXML
     public void initialize() {
@@ -33,7 +41,7 @@ public class ReproductorDeMusicaController {
         // Configurar el slider de volumen
         sliderVolumen.setMin(0);
         sliderVolumen.setMax(100);
-        sliderVolumen.setValue(50); // Volumen inicial en 50%
+        sliderVolumen.setValue(50);
         sliderVolumen.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (mediaPlayer != null) {
                 mediaPlayer.setVolume(newVal.doubleValue() / 100);
@@ -43,12 +51,15 @@ public class ReproductorDeMusicaController {
         // Configurar el slider de progreso
         sliderProgreso.setMin(0);
         sliderProgreso.setValue(0);
-        sliderProgreso.setDisable(true); // Se habilita cuando hay una canción en reproducción
+        sliderProgreso.setDisable(true);
         sliderProgreso.setOnMouseReleased(event -> {
             if (mediaPlayer != null) {
                 mediaPlayer.seek(Duration.seconds(sliderProgreso.getValue()));
             }
         });
+
+        // Configurar efectos visuales iniciales
+        configurarEfectosVisuales();
     }
 
     @FXML
@@ -59,7 +70,6 @@ public class ReproductorDeMusicaController {
                 mediaPlayer.play();
                 enPausa = false;
                 actualizarEtiqueta();
-                System.out.println("Reproducción reanudada.");
             } else {
                 if (mediaPlayer != null) mediaPlayer.stop();
                 Media media = new Media(new File(actual.ruta).toURI().toString());
@@ -74,14 +84,28 @@ public class ReproductorDeMusicaController {
 
                 mediaPlayer.currentTimeProperty().addListener((obs, oldTime, newTime) -> {
                     sliderProgreso.setValue(newTime.toSeconds());
+                    actualizarTiempo(newTime, mediaPlayer.getMedia().getDuration());
                 });
 
-                mediaPlayer.setOnEndOfMedia(() -> {
-                    sliderProgreso.setValue(sliderProgreso.getMax()); // Ajustar el slider al final
-                });
+                mediaPlayer.setOnEndOfMedia(() -> sliderProgreso.setValue(sliderProgreso.getMax()));
 
                 mediaPlayer.play();
                 enPausa = false;
+            }
+        }
+    }
+
+    @FXML
+    public void Pausa(ActionEvent event) {
+        if (mediaPlayer != null) {
+            if (enPausa) {
+                mediaPlayer.play();
+                enPausa = false;
+                actualizarEtiqueta();
+            } else {
+                mediaPlayer.pause();
+                enPausa = true;
+                labelCancion.setText("Pausado: " + actual.nombre + " - " + actual.artista);
             }
         }
     }
@@ -102,36 +126,34 @@ public class ReproductorDeMusicaController {
         }
     }
 
-    @FXML
-    public void Pausa(ActionEvent event) {
-        if (mediaPlayer != null) {
-            if (enPausa) {
-                mediaPlayer.play();
-                enPausa = false;
-                actualizarEtiqueta();
-                System.out.println("Reproducción reanudada.");
-            } else {
-                mediaPlayer.pause();
-                enPausa = true;
-                labelCancion.setText("Pausado: " + actual.nombre + " - " + actual.artista);
-                System.out.println("Reproducción pausada.");
-            }
-        }
-    }
-
-    // Método para actualizar la etiqueta con la información de la canción
     private void actualizarEtiqueta() {
         if (labelCancion != null && actual != null && mediaPlayer != null) {
-            Duration duracion = mediaPlayer.getMedia().getDuration();
-            String duracionTexto = String.format("%02d:%02d",
-                    (int) duracion.toMinutes(),
-                    (int) duracion.toSeconds() % 60
-            );
-            labelCancion.setText("Reproduciendo: " + actual.nombre + " - " + actual.artista + " [" + duracionTexto + "]");
+            labelCancion.setText("🎵 Reproduciendo: " + actual.nombre + " - " + actual.artista);
         }
     }
 
-    // Clases para la lista de reproducción
+    private void actualizarTiempo(Duration tiempoActual, Duration duracionTotal) {
+        if (tiempoTranscurrido != null && tiempoRestante != null) {
+            int segundosTranscurridos = (int) tiempoActual.toSeconds();
+            int segundosRestantes = (int) duracionTotal.toSeconds() - segundosTranscurridos;
+
+            tiempoTranscurrido.setText(String.format("%02d:%02d", segundosTranscurridos / 60, segundosTranscurridos % 60));
+            tiempoRestante.setText(String.format("-%02d:%02d", segundosRestantes / 60, segundosRestantes % 60));
+        }
+    }
+
+    private void configurarEfectosVisuales() {
+        DropShadow sombra = new DropShadow(10, Color.GRAY);
+        labelCancion.setEffect(sombra);
+
+        Timeline parpadeo = new Timeline(
+            new KeyFrame(Duration.seconds(0.5), e -> labelCancion.setTextFill(Color.YELLOW)),
+            new KeyFrame(Duration.seconds(1), e -> labelCancion.setTextFill(Color.WHITE))
+        );
+        parpadeo.setCycleCount(Timeline.INDEFINITE);
+        parpadeo.play();
+    }
+
     class NodoCancion {
         String nombre;
         String artista;
