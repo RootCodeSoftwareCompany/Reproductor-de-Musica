@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/module-info.java to edit this template
  */
 
-module Reproductordemusica {
+module Reproductordemusica { 
     requires javafx.swt;
     requires javafx.base;
     requires javafx.controls;
@@ -15,4 +15,4 @@ module Reproductordemusica {
     requires java.base;
     opens reproductordemusica to javafx.fxml;
     exports reproductordemusica;
-}
+}  
