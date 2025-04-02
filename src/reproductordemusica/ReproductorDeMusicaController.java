@@ -1,5 +1,6 @@
 package reproductordemusica;
 
+import java.io.BufferedReader;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
@@ -12,6 +13,7 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import java.io.File;
+import java.io.FileReader;
 
 public class ReproductorDeMusicaController {
 
@@ -33,12 +35,8 @@ public class ReproductorDeMusicaController {
 
     @FXML
     public void initialize() {
-        // Agregar canciones
-        listaReproduccion.agregarCancion("Believer", "Imagine Dragons", "Canciones/Believer.mp3");
-        listaReproduccion.agregarCancion("Demons", "Imagine Dragons", "Canciones/Demons.mp3");
-        listaReproduccion.agregarCancion("Radioactive", "Imagine Dragons", "Canciones/Radioactive.mp3");
+        cargarCanciones();
 
-        // Configurar el slider de volumen
         sliderVolumen.setMin(0);
         sliderVolumen.setMax(100);
         sliderVolumen.setValue(50);
@@ -48,7 +46,6 @@ public class ReproductorDeMusicaController {
             }
         });
 
-        // Configurar el slider de progreso
         sliderProgreso.setMin(0);
         sliderProgreso.setValue(0);
         sliderProgreso.setDisable(true);
@@ -58,8 +55,32 @@ public class ReproductorDeMusicaController {
             }
         });
 
-        // Configurar efectos visuales iniciales
         configurarEfectosVisuales();
+    }
+
+    private void cargarCanciones() {
+        File archivo = new File(System.getProperty("user.home"), "canciones.txt");
+
+        if (archivo.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(archivo))) {
+                String linea;
+                while ((linea = reader.readLine()) != null) {
+                    String[] partes = linea.split("\\|");
+                    if (partes.length == 2) { // Verificamos que haya 2 partes: Nombre y Ruta
+                        String nombreCancion = partes[0].trim();
+                        String rutaCancion = partes[1].trim();
+                        
+                        listaReproduccion.agregarCancion(nombreCancion, rutaCancion);
+                    } else {
+                        System.out.println("Línea incorrecta en el archivo: " + linea);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("El archivo canciones.txt no existe.");
+        }
     }
 
     @FXML
@@ -88,7 +109,6 @@ public class ReproductorDeMusicaController {
                 });
 
                 mediaPlayer.setOnEndOfMedia(() -> sliderProgreso.setValue(sliderProgreso.getMax()));
-
                 mediaPlayer.play();
                 enPausa = false;
             }
@@ -105,7 +125,7 @@ public class ReproductorDeMusicaController {
             } else {
                 mediaPlayer.pause();
                 enPausa = true;
-                labelCancion.setText("Pausado: " + actual.nombre + " - " + actual.artista);
+                labelCancion.setText("Pausado: " + actual.nombre);
             }
         }
     }
@@ -128,7 +148,7 @@ public class ReproductorDeMusicaController {
 
     private void actualizarEtiqueta() {
         if (labelCancion != null && actual != null && mediaPlayer != null) {
-            labelCancion.setText("🎵 Reproduciendo: " + actual.nombre + " - " + actual.artista);
+            labelCancion.setText("🎵 Reproduciendo: " + actual.nombre);
         }
     }
 
@@ -156,13 +176,11 @@ public class ReproductorDeMusicaController {
 
     class NodoCancion {
         String nombre;
-        String artista;
         String ruta;
         NodoCancion anterior, siguiente;
 
-        public NodoCancion(String nombre, String artista, String ruta) {
+        public NodoCancion(String nombre, String ruta) {
             this.nombre = nombre;
-            this.artista = artista;
             this.ruta = ruta;
             this.anterior = null;
             this.siguiente = null;
@@ -172,8 +190,8 @@ public class ReproductorDeMusicaController {
     class ListaDobleCircularReproduccion {
         private NodoCancion cabeza;
 
-        public void agregarCancion(String nombre, String artista, String ruta) {
-            NodoCancion nueva = new NodoCancion(nombre, artista, ruta);
+        public void agregarCancion(String nombre, String ruta) {
+            NodoCancion nueva = new NodoCancion(nombre, ruta);
             if (cabeza == null) {
                 cabeza = nueva;
                 cabeza.siguiente = cabeza;
@@ -196,4 +214,3 @@ public class ReproductorDeMusicaController {
         }
     }
 }
-

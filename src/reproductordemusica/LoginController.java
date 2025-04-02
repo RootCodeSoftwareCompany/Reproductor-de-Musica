@@ -23,10 +23,8 @@ public class LoginController implements Initializable {
     @FXML
     public void Ingresar(ActionEvent event) throws Exception {
         
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("ReproductorDeMusica.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("CarpetaMusica.fxml"));
         Parent root = loader.load();
-
-        // Obtener la ventana actual y cambiar la escena
         stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
         stage.setScene(new Scene(root));
         stage.setTitle("Reproductor de Música");
