@@ -59,7 +59,7 @@ public class ReproductorDeMusicaController {
     }
 
     private void cargarCanciones() {
-        File archivo = new File(System.getProperty("user.home"), "canciones.txt");
+        File archivo = new File("canciones.txt");
 
         if (archivo.exists()) {
             try (BufferedReader reader = new BufferedReader(new FileReader(archivo))) {

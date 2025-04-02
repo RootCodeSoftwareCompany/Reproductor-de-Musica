@@ -9,6 +9,7 @@
       <Pane prefHeight="607.0" prefWidth="800.0">
          <children>
             <Button layoutX="295.0" layoutY="249.0" mnemonicParsing="false" onAction="#seleccionarCarpeta" prefHeight="71.0" prefWidth="210.0" text="Seleccionar archivos" />
+            <Button layoutX="295.0" layoutY="320.0" mnemonicParsing="false" onAction="#Siguiente" prefHeight="71.0" prefWidth="210.0" text="Siguiente" />
          </children>
       </Pane>
    </children>

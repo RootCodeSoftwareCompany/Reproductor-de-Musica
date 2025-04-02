@@ -51,12 +51,7 @@ public class CarpetaMusicaController implements Initializable {
                     alerta.setContentText("Las canciones se han guardado correctamente en: " + archivoSalida.getAbsolutePath());
                     alerta.showAndWait();
 
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("ReproductorDeMusica.fxml"));
-                    Parent root = loader.load();
-                    stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-                    stage.setScene(new Scene(root));
-                    stage.setTitle("Reproductor de Música");
-                    stage.show();
+        
 
                 } catch (IOException e) {
                     Alert alerta = new Alert(AlertType.ERROR);
@@ -80,7 +75,14 @@ public class CarpetaMusicaController implements Initializable {
     public void setStage(Stage stage) {
         this.stage = stage;
     }
+    @FXML
+    public void Siguiente (ActionEvent event) throws Exception{
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("ReproductorDeMusica.fxml"));
+                    Parent root = loader.load();
+                    stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+                    stage.setScene(new Scene(root));
+                    stage.setTitle("Reproductor de Música");
+                    stage.show();
+        
+    }
 }
-
-
-
