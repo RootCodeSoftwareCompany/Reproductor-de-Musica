@@ -58,4 +58,3 @@ public class LoginController implements Initializable {
         alert.showAndWait();
     }
 }
-
