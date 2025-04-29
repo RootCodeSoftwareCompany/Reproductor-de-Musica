@@ -1,3 +1,6 @@
-Believer | C:\Users\user\Desktop\Proyecto\Reproductor-de-Musica\Canciones\Believer.mp3
-Demons | C:\Users\user\Desktop\Proyecto\Reproductor-de-Musica\Canciones\Demons.mp3
-Radioactive | C:\Users\user\Desktop\Proyecto\Reproductor-de-Musica\Canciones\Radioactive.mp3
+Believer | C:\Users\user\Desktop\Canciones2\Believer.mp3
+Blur | C:\Users\user\Desktop\Canciones2\Blur.mp3
+Bones | C:\Users\user\Desktop\Canciones2\Bones.mp3
+Demons | C:\Users\user\Desktop\Canciones2\Demons.mp3
+House of Memories | C:\Users\user\Desktop\Canciones2\House of Memories.mp3
+Radioactive | C:\Users\user\Desktop\Canciones2\Radioactive.mp3

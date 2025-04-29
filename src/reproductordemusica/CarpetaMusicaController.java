@@ -2,22 +2,27 @@ package reproductordemusica;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.Stage;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-
-import java.io.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.stage.Stage;
+import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
+import javax.swing.JFileChooser;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.tag.Tag;
+import org.jaudiotagger.tag.FieldKey;
 
 public class CarpetaMusicaController implements Initializable {
 
     private Stage stage;
+    private ArrayList<Cancion> listaCanciones = new ArrayList<>();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -26,63 +31,82 @@ public class CarpetaMusicaController implements Initializable {
 
     @FXML
     public void seleccionarCarpeta(ActionEvent event) {
-        DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setTitle("Seleccionar carpeta de música");
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Seleccionar carpeta de música");
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
-        File carpetaSeleccionada = directoryChooser.showDialog(stage);
+        int resultado = fileChooser.showOpenDialog(null);
 
-        if (carpetaSeleccionada != null) {
-            File[] archivos = carpetaSeleccionada.listFiles((dir, nombre) -> nombre.toLowerCase().endsWith(".mp3"));
+        if (resultado == JFileChooser.APPROVE_OPTION) {
+            File carpetaSeleccionada = fileChooser.getSelectedFile();
+            File[] archivos = carpetaSeleccionada.listFiles((dir, nombre) -> {
+                String nombreLower = nombre.toLowerCase();
+                return nombreLower.endsWith(".mp3") || nombreLower.endsWith(".wav") || nombreLower.endsWith(".wma");
+            });
 
             if (archivos != null && archivos.length > 0) {
-                File archivoSalida = new File("canciones.txt");
+                listaCanciones.clear();
 
-                try (BufferedWriter writer = new BufferedWriter(new FileWriter(archivoSalida))) {
-                    for (File archivo : archivos) {
-                        String nombreCancion = archivo.getName().replace(".mp3", "").trim();
-                        String rutaCancion = archivo.getAbsolutePath();
-                        writer.write(nombreCancion + " | " + rutaCancion);
-                        writer.newLine();
+                for (File archivo : archivos) {
+                    try {
+                        AudioFile audioFile = AudioFileIO.read(archivo);
+                        Tag tag = audioFile.getTag();
+                        String nombre = tag != null && tag.getFirst(FieldKey.TITLE) != null && !tag.getFirst(FieldKey.TITLE).isEmpty() 
+                                       ? tag.getFirst(FieldKey.TITLE) 
+                                       : archivo.getName().replaceFirst("\\.(mp3|wav|wma)$", "");
+                        String artista = tag != null ? tag.getFirst(FieldKey.ARTIST) : "Desconocido";
+                        String genero = tag != null ? tag.getFirst(FieldKey.GENRE) : "Desconocido";
+                        String album = tag != null ? tag.getFirst(FieldKey.ALBUM) : "Desconocido";
+                        String anio = tag != null ? tag.getFirst(FieldKey.YEAR) : "Desconocido";
+
+                        // Manejo de valores nulos o vacíos
+                        if (artista == null || artista.isEmpty()) artista = "Desconocido";
+                        if (genero == null || genero.isEmpty()) genero = "Desconocido";
+                        if (album == null || album.isEmpty()) album = "Desconocido";
+                        if (anio == null || anio.isEmpty()) anio = "Desconocido";
+
+                        listaCanciones.add(new Cancion(nombre, archivo.getAbsolutePath(), artista, genero, album, anio));
+                    } catch (Exception e) {
+                        System.err.println("Error al leer metadatos de: " + archivo.getName() + " - " + e.getMessage());
+                        listaCanciones.add(new Cancion(
+                            archivo.getName().replaceFirst("\\.(mp3|wav|wma)$", ""),
+                            archivo.getAbsolutePath(),
+                            "Desconocido", "Desconocido", "Desconocido", "Desconocido"
+                        ));
                     }
-
-                    Alert alerta = new Alert(AlertType.INFORMATION);
-                    alerta.setTitle("Operación exitosa");
-                    alerta.setHeaderText(null);
-                    alerta.setContentText("Las canciones se han guardado correctamente en: " + archivoSalida.getAbsolutePath());
-                    alerta.showAndWait();
-
-        
-
-                } catch (IOException e) {
-                    Alert alerta = new Alert(AlertType.ERROR);
-                    alerta.setTitle("Error al guardar el archivo");
-                    alerta.setHeaderText(null);
-                    alerta.setContentText("Ocurrió un error al guardar el archivo de texto: " + e.getMessage());
-                    alerta.showAndWait();
                 }
+
+                mostrarAlerta(AlertType.INFORMATION, "Canciones cargadas",
+                        "Se han encontrado " + listaCanciones.size() + " canciones.");
             } else {
-                Alert alerta = new Alert(AlertType.WARNING);
-                alerta.setTitle("Sin archivos MP3");
-                alerta.setHeaderText(null);
-                alerta.setContentText("No se encontraron archivos MP3 en la carpeta seleccionada.");
-                alerta.showAndWait();
+                mostrarAlerta(AlertType.WARNING, "Sin archivos de audio",
+                        "No se encontraron archivos MP3, WAV o WMA en la carpeta seleccionada.");
             }
         } else {
             System.out.println("No se seleccionó ninguna carpeta.");
         }
     }
 
-    public void setStage(Stage stage) {
-        this.stage = stage;
-    }
     @FXML
-    public void Siguiente (ActionEvent event) throws Exception{
+    public void Siguiente(ActionEvent event) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ReproductorDeMusica.fxml"));
-                    Parent root = loader.load();
-                    stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-                    stage.setScene(new Scene(root));
-                    stage.setTitle("Reproductor de Música");
-                    stage.show();
-        
+        Parent root = loader.load();
+
+        // Pasar la lista al siguiente controlador
+        ReproductorDeMusicaController controller = loader.getController();
+        controller.setListaCanciones(listaCanciones, true);
+
+        stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+        stage.setScene(new Scene(root));
+        stage.setTitle("Reproductor de Música");
+        stage.show();
+    }
+
+    private void mostrarAlerta(AlertType tipo, String titulo, String mensaje) {
+        Alert alerta = new Alert(tipo);
+        alerta.setTitle(titulo);
+        alerta.setHeaderText(null);
+        alerta.setContentText(mensaje);
+        alerta.showAndWait();
     }
 }

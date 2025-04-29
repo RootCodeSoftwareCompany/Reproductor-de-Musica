@@ -1,62 +1,47 @@
-<?xml version="1.0" encoding="UTF-8"?>  
-<?import javafx.scene.control.Button?>  
-<?import javafx.scene.control.Label?>  
-<?import javafx.scene.control.PasswordField?>  
-<?import javafx.scene.control.TextField?>  
-<?import javafx.scene.image.Image?>  
-<?import javafx.scene.image.ImageView?>  
-<?import javafx.scene.layout.AnchorPane?>  
-<?import javafx.scene.layout.Pane?>  
-<?import javafx.scene.shape.Rectangle?>  
-<?import javafx.scene.text.Font?>  
+<?xml version="1.0" encoding="UTF-8"?>
 
-<AnchorPane id="AnchorPane" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="reproductordemusica.LoginController">  
-   <children>  
-      <!-- Background Pane -->
-      <Pane layoutX="0" layoutY="0" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: linear-gradient(to bottom, #2c3e50, #34495e);">  
-         <children>  
-            <!-- Decorative Rectangle -->
-            <Rectangle layoutX="50.0" layoutY="50.0" width="700.0" height="500.0" arcWidth="25.0" arcHeight="25.0" style="-fx-fill: rgba(255, 255, 255, 0.2);" />  
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-            <!-- Logo Section -->
-            <ImageView fitHeight="180.0" fitWidth="180.0" layoutX="310.0" layoutY="60.0" pickOnBounds="true" preserveRatio="true">  
-               <image>  
-                  <Image url="@../Imagenes/logotipo.png" />  
-               </image>  
-            </ImageView>  
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="reproductordemusica.LoginController">
+    <VBox alignment="CENTER" layoutX="6.0" layoutY="7.0" prefHeight="600" prefWidth="400" spacing="20">
+        
+        <!-- Sección de Login -->
+        <Label style="-fx-font-size: 18px;" text="Iniciar Sesión" />
+        
+        <TextField fx:id="txtUsuario" promptText="Usuario" />
+        <PasswordField fx:id="txtContrasena" promptText="Contraseña" />
+        <Button onAction="#handleLogin" text="Iniciar Sesión" />
 
-            <!-- Welcome Text -->
-            <Label layoutX="250.0" layoutY="260.0" text="¡Bienvenido!" textFill="WHITE">  
-               <font>  
-                  <Font name="System Bold" size="36.0" />  
-               </font>  
-            </Label>  
+        <Separator />
 
-            <!-- Login Form Pane -->
-            <Pane layoutX="220.0" layoutY="320.0" prefHeight="250.0" prefWidth="360.0" style="-fx-background-color: #ffffff; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 10, 0, 0, 4);">  
-               <children>  
-                  <Label layoutX="30.0" layoutY="20.0" text="Usuario" textFill="#34495e">  
-                     <font>  
-                        <Font size="20.0" />  
-                     </font>  
-                  </Label>  
-                  <TextField layoutX="30.0" layoutY="60.0" prefHeight="40.0" prefWidth="300.0" style="-fx-background-radius: 10; -fx-border-color: #bdc3c7; -fx-border-radius: 10;" />  
+        <!-- Sección de Registro -->
+        <Label style="-fx-font-size: 18px;" text="Registrar Nuevo Usuario" />
 
-                  <Label layoutX="30.0" layoutY="120.0" text="Contraseña" textFill="#34495e">  
-                     <font>  
-                        <Font size="20.0" />  
-                     </font>  
-                  </Label>  
-                  <PasswordField layoutX="30.0" layoutY="160.0" prefHeight="40.0" prefWidth="300.0" style="-fx-background-radius: 10; -fx-border-color: #bdc3c7; -fx-border-radius: 10;" />  
+        <TextField fx:id="txtNuevoUsuario" promptText="Nuevo Usuario" />
+        <PasswordField fx:id="txtNuevaContrasena" promptText="Contraseña" />
+        <PasswordField fx:id="txtConfirmarContrasena" promptText="Confirmar Contraseña" />
+        <TextField fx:id="txtEdad" promptText="Edad" />
 
-                  <Button layoutX="115.0" layoutY="220.0" mnemonicParsing="false" onAction="#Ingresar" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand;" text="Ingresar">  
-                     <font>  
-                        <Font size="18.0" />  
-                     </font>  
-                  </Button>  
-               </children>  
-            </Pane>  
-         </children>  
-      </Pane>  
-   </children>  
-</AnchorPane>  
+        <Label text="Preferencias Musicales" />
+        <HBox alignment="CENTER" spacing="10">
+            <CheckBox fx:id="chkRock" text="Rock" />
+            <CheckBox fx:id="chkPop" text="Pop" />
+            <CheckBox fx:id="chkClasica" text="Clásica" />
+        </HBox>
+        <HBox alignment="CENTER" spacing="10">
+            <CheckBox fx:id="chkJazz" text="Jazz" />
+            <CheckBox fx:id="chkReggaeton" text="Reggaetón" />
+        </HBox>
+
+        <Button onAction="#handleRegistro" text="Registrarse" />
+
+    </VBox>
+</AnchorPane>
