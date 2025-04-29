@@ -193,4 +193,3 @@ public class LoginController {
         chkReggaeton.setSelected(false);
     }
 }
-

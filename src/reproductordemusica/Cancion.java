@@ -19,7 +19,7 @@ public class Cancion {
         this.album = new SimpleStringProperty(album);
         this.anio = new SimpleStringProperty(anio);
     }
-
+  
     public String getNombre() {
         return nombre.get();
     }
@@ -42,6 +42,7 @@ public class Cancion {
 
     public String getAnio() {
         return anio.get();
+
     }
 
     public void setArtista(String artista) {
