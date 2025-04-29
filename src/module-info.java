@@ -12,7 +12,11 @@ module Reproductordemusica {
     requires javafx.media;
     requires javafx.swing;
     requires javafx.web;
+    requires java.desktop;
     requires java.base;
+
+    requires jaudiotagger;
+
     opens reproductordemusica to javafx.fxml;
     exports reproductordemusica;
 }  

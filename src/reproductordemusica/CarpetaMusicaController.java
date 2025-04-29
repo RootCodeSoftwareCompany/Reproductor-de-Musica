@@ -9,15 +9,15 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
-import reproductordemusica.Cancion;
-import javax.swing.*;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
-import com.mpatric.mp3agic.ID3v1;
-import com.mpatric.mp3agic.ID3v2;
-import com.mpatric.mp3agic.Mp3File;
+import javax.swing.JFileChooser;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.tag.Tag;
+import org.jaudiotagger.tag.FieldKey;
 
 public class CarpetaMusicaController implements Initializable {
 
@@ -39,46 +39,48 @@ public class CarpetaMusicaController implements Initializable {
 
         if (resultado == JFileChooser.APPROVE_OPTION) {
             File carpetaSeleccionada = fileChooser.getSelectedFile();
-            File[] archivos = carpetaSeleccionada.listFiles((dir, nombre) -> nombre.toLowerCase().endsWith(".mp3"));
+            File[] archivos = carpetaSeleccionada.listFiles((dir, nombre) -> {
+                String nombreLower = nombre.toLowerCase();
+                return nombreLower.endsWith(".mp3") || nombreLower.endsWith(".wav") || nombreLower.endsWith(".wma");
+            });
 
             if (archivos != null && archivos.length > 0) {
                 listaCanciones.clear();
 
                 for (File archivo : archivos) {
                     try {
-                        Mp3File mp3file = new Mp3File(archivo);
-                        String nombre = archivo.getName().replace(".mp3", "").trim();
-                        String ruta = archivo.getAbsolutePath();
-                        String artista = "";
-                        String genero = "";
-                        String album = "";
-                        String anio = "";
+                        AudioFile audioFile = AudioFileIO.read(archivo);
+                        Tag tag = audioFile.getTag();
+                        String nombre = tag != null && tag.getFirst(FieldKey.TITLE) != null && !tag.getFirst(FieldKey.TITLE).isEmpty() 
+                                       ? tag.getFirst(FieldKey.TITLE) 
+                                       : archivo.getName().replaceFirst("\\.(mp3|wav|wma)$", "");
+                        String artista = tag != null ? tag.getFirst(FieldKey.ARTIST) : "Desconocido";
+                        String genero = tag != null ? tag.getFirst(FieldKey.GENRE) : "Desconocido";
+                        String album = tag != null ? tag.getFirst(FieldKey.ALBUM) : "Desconocido";
+                        String anio = tag != null ? tag.getFirst(FieldKey.YEAR) : "Desconocido";
 
-                        if (mp3file.hasId3v2Tag()) {
-                            ID3v2 id3v2Tag = mp3file.getId3v2Tag();
-                            artista = id3v2Tag.getArtist();
-                            genero = id3v2Tag.getGenreDescription();
-                            album = id3v2Tag.getAlbum();
-                            anio = id3v2Tag.getYear();
-                        } else if (mp3file.hasId3v1Tag()) {
-                            ID3v1 id3v1Tag = mp3file.getId3v1Tag();
-                            artista = id3v1Tag.getArtist();
-                            genero = id3v1Tag.getGenreDescription();
-                            album = id3v1Tag.getAlbum();
-                            anio = id3v1Tag.getYear();
-                        }
+                        // Manejo de valores nulos o vacíos
+                        if (artista == null || artista.isEmpty()) artista = "Desconocido";
+                        if (genero == null || genero.isEmpty()) genero = "Desconocido";
+                        if (album == null || album.isEmpty()) album = "Desconocido";
+                        if (anio == null || anio.isEmpty()) anio = "Desconocido";
 
-                        listaCanciones.add(new Cancion(nombre, ruta, artista, genero, album, anio));
+                        listaCanciones.add(new Cancion(nombre, archivo.getAbsolutePath(), artista, genero, album, anio));
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        System.err.println("Error al leer metadatos de: " + archivo.getName() + " - " + e.getMessage());
+                        listaCanciones.add(new Cancion(
+                            archivo.getName().replaceFirst("\\.(mp3|wav|wma)$", ""),
+                            archivo.getAbsolutePath(),
+                            "Desconocido", "Desconocido", "Desconocido", "Desconocido"
+                        ));
                     }
                 }
 
                 mostrarAlerta(AlertType.INFORMATION, "Canciones cargadas",
                         "Se han encontrado " + listaCanciones.size() + " canciones.");
             } else {
-                mostrarAlerta(AlertType.WARNING, "Sin archivos MP3",
-                        "No se encontraron archivos MP3 en la carpeta seleccionada.");
+                mostrarAlerta(AlertType.WARNING, "Sin archivos de audio",
+                        "No se encontraron archivos MP3, WAV o WMA en la carpeta seleccionada.");
             }
         } else {
             System.out.println("No se seleccionó ninguna carpeta.");
@@ -107,5 +109,4 @@ public class CarpetaMusicaController implements Initializable {
         alerta.setContentText(mensaje);
         alerta.showAndWait();
     }
-
 }

@@ -3,6 +3,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -71,10 +72,10 @@
             <TableView fx:id="tablaCanciones" layoutX="58.0" layoutY="141.0" prefHeight="310.0" prefWidth="376.0">
               <columns>
                 <TableColumn fx:id="colNombre" prefWidth="75.0" text="Nombre" />
-                  <TableColumn fx:id="colArtista" prefWidth="75.0" text="Artista" />
+                <TableColumn fx:id="colArtista" prefWidth="75.0" text="Artista" />
                 <TableColumn fx:id="colGenero" prefWidth="75.0" text="Genero" />
-                  <TableColumn fx:id="colAnio" prefWidth="75.0" text="año" />
-                  <TableColumn fx:id="colAlbum" prefWidth="75.0" text="Album" />
+                <TableColumn fx:id="colAnio" prefWidth="75.0" text="Año" />
+                <TableColumn fx:id="colAlbum" prefWidth="75.0" text="Album" />
               </columns>
             </TableView>
             <ComboBox fx:id="comboBoxListas" layoutX="58.0" layoutY="116.0" prefHeight="25.0" prefWidth="376.0" />
@@ -82,6 +83,13 @@
             <Button fx:id="btnAgregarCancion" layoutX="434.0" layoutY="164.0" mnemonicParsing="false" onAction="#agregarCancionesALista" text="Añadir" />
             <Button fx:id="btnEliminarCancion" layoutX="434.0" layoutY="201.0" mnemonicParsing="false" onAction="#eliminarCancionDeLista" text="Eliminar" />
             <Button fx:id="btnEliminarLista" layoutX="463.0" layoutY="116.0" mnemonicParsing="false" onAction="#eliminarLista" text="Eliminar" />
+            <!-- Historial de Reproducción -->
+            <Label layoutX="650.0" layoutY="116.0" text="Historial de Reproducción" textFill="WHITE">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <ListView fx:id="listaHistorial" layoutX="650.0" layoutY="141.0" prefHeight="200.0" prefWidth="250.0" />
          </children>
       </Pane>
    </children>
