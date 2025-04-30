@@ -24,7 +24,6 @@ public class ReproductorDeMusicaController {
     private boolean enPausa = false;
     private boolean modoAleatorio = false;
     private boolean isSelectingFromHistory = false;
-
     private final ObservableList<Cancion> cancionesList = FXCollections.observableArrayList();
     private final Map<String, ArrayList<Cancion>> listasDeReproduccion = new HashMap<>();
     private final ObservableList<String> historialReproduccion = FXCollections.observableArrayList();
@@ -293,6 +292,7 @@ public class ReproductorDeMusicaController {
             if (actual != null) {
                 tablaCanciones.getSelectionModel().select(actualToCancion(actual));
                 reproducirCancionSeleccionada();
+
             }
         });
 

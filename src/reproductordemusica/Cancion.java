@@ -19,26 +19,31 @@ public class Cancion {
         this.album = new SimpleStringProperty(album);
         this.anio = new SimpleStringProperty(anio);
     }
-  
+
     public String getNombre() {
         return nombre.get();
     }
+
 
     public String getRuta() {
         return ruta.get();
     }
 
+
     public String getArtista() {
         return artista.get();
     }
+
 
     public String getGenero() {
         return genero.get();
     }
 
+
     public String getAlbum() {
         return album.get();
     }
+
 
     public String getAnio() {
         return anio.get();

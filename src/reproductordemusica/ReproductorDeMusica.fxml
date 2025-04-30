@@ -51,16 +51,19 @@
 
             <!-- Sliders -->
             <Label layoutX="750.0" layoutY="695.0" text="Volumen" textFill="WHITE">
+
                <font>
                   <Font size="18.0" />
                </font>
             </Label>
             <Slider fx:id="sliderVolumen" layoutX="750.0" layoutY="737.0" prefWidth="200.0" style="-fx-border-color: white; -fx-border-radius: 10;" />
             <Label layoutX="37.0" layoutY="693.0" text="Progreso" textFill="WHITE">
+
                <font>
                   <Font size="18.0" />
                </font>
             </Label>
+
             <Slider fx:id="sliderProgreso" layoutX="37.0" layoutY="737.0" prefWidth="670.0" style="-fx-border-color: white; -fx-border-radius: 10;" />
             <ToggleButton fx:id="botonAleatorio" alignment="CENTER_LEFT" layoutX="484.0" layoutY="637.0" mnemonicParsing="false" onAction="#cambiarColor" style="-fx-background-radius: 30; -fx-background-color: Blue; -fx-text-fill: white;" text="Aleatorio">
                <font>
