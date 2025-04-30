@@ -23,7 +23,7 @@ public class ReproductorDeMusicaController {
     private NodoCancion actual;
     private boolean enPausa = false;
     private boolean modoAleatorio = false;
-
+    private boolean isSelectingFromHistory = false;
     private final ObservableList<Cancion> cancionesList = FXCollections.observableArrayList();
     private final Map<String, ArrayList<Cancion>> listasDeReproduccion = new HashMap<>();
     private final ObservableList<String> historialReproduccion = FXCollections.observableArrayList();
@@ -47,7 +47,7 @@ public class ReproductorDeMusicaController {
     @FXML private Button btnAgregarCancion;
     @FXML private Button btnEliminarCancion;
     @FXML private Button btnEliminarLista;
- 
+    @FXML private ListView<String> listaHistorial;
 
     @FXML
     public void initialize() {
@@ -60,7 +60,7 @@ public class ReproductorDeMusicaController {
         tablaCanciones.setItems(cancionesList);
 
         tablaCanciones.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null) {
+            if (newVal != null && !isSelectingFromHistory) {
                 actual = listaReproduccion.buscarPorNombre(newVal.getNombre());
                 reproducirCancionSeleccionada();
             }
@@ -103,6 +103,28 @@ public class ReproductorDeMusicaController {
         btnEliminarCancion.setVisible(false);
         btnAgregarCancion.setVisible(false);
         cambiarColor();
+
+        // Vincular ListView del historial
+        listaHistorial.setItems(historialReproduccion);
+        // Listener para reproducir canción al hacer clic en el historial
+        listaHistorial.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                // Extraer el nombre de la canción (antes de " - ")
+                String nombreCancion = newVal.split(" - ")[0];
+                // Buscar la canción en cancionesList
+                for (Cancion cancion : cancionesList) {
+                    if (cancion.getNombre().equals(nombreCancion)) {
+                        isSelectingFromHistory = true;
+                        actual = listaReproduccion.buscarPorNombre(cancion.getNombre());
+                        tablaCanciones.getSelectionModel().select(cancion);
+                        reproducirCancionSeleccionada();
+                        isSelectingFromHistory = false;
+                        break;
+                    }
+                }
+            }
+        });
+
         configurarEfectosVisuales();
     }
 
@@ -142,6 +164,7 @@ public class ReproductorDeMusicaController {
             }
         });
     }
+
     @FXML
     public void eliminarLista() {
         String listaSeleccionada = comboBoxListas.getValue();
@@ -165,9 +188,9 @@ public class ReproductorDeMusicaController {
 
             btnAgregarCancion.setVisible(false);
             btnEliminarCancion.setVisible(false);
-          
         }
     }
+
     @FXML
     public void agregarCancionesALista() {
         String listaSeleccionada = comboBoxListas.getValue();
@@ -205,6 +228,7 @@ public class ReproductorDeMusicaController {
             }
         });
     }
+
     @FXML
     public void eliminarCancionDeLista() {
         Cancion seleccion = tablaCanciones.getSelectionModel().getSelectedItem();
@@ -223,7 +247,6 @@ public class ReproductorDeMusicaController {
         }
     }
 
-   
     private void mostrarAlerta(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Advertencia");
@@ -232,10 +255,15 @@ public class ReproductorDeMusicaController {
         alert.showAndWait();
     }
 
-
     private void reproducirCancionSeleccionada() {
         if (actual == null) return;
         if (mediaPlayer != null) mediaPlayer.stop();
+
+        // Agregar al historial
+        String entradaHistorial = actual.nombre + " - " + 
+            (actualToCancion(actual).getArtista() != null && !actualToCancion(actual).getArtista().isEmpty() 
+                ? actualToCancion(actual).getArtista() : "Desconocido");
+        historialReproduccion.add(entradaHistorial);
 
         Media media = new Media(new File(actual.ruta).toURI().toString());
         mediaPlayer = new MediaPlayer(media);
@@ -264,17 +292,16 @@ public class ReproductorDeMusicaController {
             if (actual != null) {
                 tablaCanciones.getSelectionModel().select(actualToCancion(actual));
                 reproducirCancionSeleccionada();
-              
+
             }
-       
         });
 
         mediaPlayer.play();
         enPausa = false;
-       
     }
 
-    @FXML public void Play(ActionEvent event) {
+    @FXML
+    public void Play(ActionEvent event) {
         if (actual == null) {
             Cancion seleccion = tablaCanciones.getSelectionModel().getSelectedItem();
             if (seleccion != null) {
@@ -292,7 +319,8 @@ public class ReproductorDeMusicaController {
         }
     }
 
-    @FXML public void Pausa(ActionEvent event) {
+    @FXML
+    public void Pausa(ActionEvent event) {
         if (mediaPlayer != null) {
             if (enPausa) {
                 mediaPlayer.play();
@@ -306,7 +334,8 @@ public class ReproductorDeMusicaController {
         }
     }
 
-    @FXML public void Siguiente(ActionEvent event) {
+    @FXML
+    public void Siguiente(ActionEvent event) {
         if (actual != null) {
             actual = modoAleatorio ? seleccionarAleatoria() : actual.siguiente;
             tablaCanciones.getSelectionModel().select(actualToCancion(actual));
@@ -314,7 +343,8 @@ public class ReproductorDeMusicaController {
         }
     }
 
-    @FXML public void Anterior(ActionEvent event) {
+    @FXML
+    public void Anterior(ActionEvent event) {
         if (actual != null) {
             actual = modoAleatorio ? seleccionarAleatoria() : actual.anterior;
             tablaCanciones.getSelectionModel().select(actualToCancion(actual));
@@ -322,7 +352,8 @@ public class ReproductorDeMusicaController {
         }
     }
 
-    @FXML private void cambiarColor() {
+    @FXML
+    private void cambiarColor() {
         botonAleatorio.setStyle(botonAleatorio.isSelected() ?
                 "-fx-background-color: #4CAF50; -fx-text-fill: white;" :
                 "-fx-background-color: #dddddd; -fx-text-fill: black;");
@@ -372,41 +403,46 @@ public class ReproductorDeMusicaController {
         }
     }
 
-  class ListaDobleCircularReproduccion {
-    private NodoCancion cabeza;
+    class ListaDobleCircularReproduccion {
+        private NodoCancion cabeza;
 
-    public void vaciar() {
-        cabeza = null;
-    }
+        public void vaciar() {
+            cabeza = null;
+        }
 
-    public void agregarCancion(String nombre, String ruta) {
-        NodoCancion nueva = new NodoCancion(nombre, ruta);
-        if (cabeza == null) {
-            cabeza = nueva;
-            cabeza.siguiente = cabeza;
-            cabeza.anterior = cabeza;
-        } else {
-            NodoCancion ultimo = cabeza.anterior;
-            ultimo.siguiente = nueva;
-            nueva.anterior = ultimo;
-            nueva.siguiente = cabeza;
-            cabeza.anterior = nueva;
+        public void agregarCancion(String nombre, String ruta) {
+            NodoCancion nueva = new NodoCancion(nombre, ruta);
+            if (cabeza == null) {
+                cabeza = nueva;
+                cabeza.siguiente = cabeza;
+                cabeza.anterior = cabeza;
+            } else {
+                NodoCancion ultimo = cabeza.anterior;
+                ultimo.siguiente = nueva;
+                nueva.anterior = ultimo;
+                nueva.siguiente = cabeza;
+                cabeza.anterior = nueva;
+            }
+        }
+
+        public NodoCancion buscarPorNombre(String nombre) {
+            if (cabeza == null) return null;
+            NodoCancion temp = cabeza;
+            do {
+                if (temp.nombre.equals(nombre)) return temp;
+                temp = temp.siguiente;
+            } while (temp != cabeza);
+            return null;
         }
     }
 
-    public NodoCancion buscarPorNombre(String nombre) {
-        if (cabeza == null) return null;
-        NodoCancion temp = cabeza;
-        do {
-            if (temp.nombre.equals(nombre)) return temp;
-            temp = temp.siguiente;
-        } while (temp != cabeza);
-        return null;
-    }
-}
-
     private Cancion actualToCancion(NodoCancion nodo) {
         if (nodo == null) return null;
+        for (Cancion cancion : cancionesList) {
+            if (cancion.getNombre().equals(nodo.nombre) && cancion.getRuta().equals(nodo.ruta)) {
+                return cancion;
+            }
+        }
         return new Cancion(nodo.nombre, nodo.ruta, null, null, null, null);
     }
 }

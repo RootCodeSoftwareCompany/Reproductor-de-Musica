@@ -86,4 +86,3 @@ public class LoginController implements Initializable {
         pause.play();
     }
 }
-
