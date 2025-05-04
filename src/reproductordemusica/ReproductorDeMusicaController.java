@@ -12,13 +12,14 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
-
+import javax.sound.sampled.*;
 import java.io.File;
 import java.util.*;
 
 public class ReproductorDeMusicaController {
 
     private MediaPlayer mediaPlayer;
+    private Clip clip;
     private final ListaDobleCircularReproduccion listaReproduccion = new ListaDobleCircularReproduccion();
     private NodoCancion actual;
     private boolean enPausa = false;
@@ -73,6 +74,16 @@ public class ReproductorDeMusicaController {
             if (mediaPlayer != null) {
                 mediaPlayer.setVolume(newVal.doubleValue() / 100);
             }
+            if (clip != null && clip.isOpen()) {
+                try {
+                    FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                    float volume = newVal.floatValue() / 100;
+                    float dB = (float) (Math.log(volume == 0 ? 0.0001 : volume) / Math.log(10.0) * 20.0);
+                    gainControl.setValue(dB);
+                } catch (Exception e) {
+                    System.err.println("Error al ajustar volumen de Clip: " + e.getMessage());
+                }
+            }
         });
 
         sliderProgreso.setMin(0);
@@ -81,6 +92,10 @@ public class ReproductorDeMusicaController {
         sliderProgreso.setOnMouseReleased(event -> {
             if (mediaPlayer != null) {
                 mediaPlayer.seek(Duration.seconds(sliderProgreso.getValue()));
+            }
+            if (clip != null && clip.isOpen()) {
+                clip.setMicrosecondPosition((long) (sliderProgreso.getValue() * 1000000));
+                if (!enPausa) clip.start();
             }
         });
 
@@ -99,7 +114,7 @@ public class ReproductorDeMusicaController {
             btnAgregarCancion.setVisible(!esPrincipal);
             btnEliminarCancion.setVisible(!esPrincipal);
         });
-        
+
         btnEliminarCancion.setVisible(false);
         btnAgregarCancion.setVisible(false);
         cambiarColor();
@@ -257,47 +272,201 @@ public class ReproductorDeMusicaController {
 
     private void reproducirCancionSeleccionada() {
         if (actual == null) return;
-        if (mediaPlayer != null) mediaPlayer.stop();
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.dispose();
+            mediaPlayer = null;
+        }
+        if (clip != null) {
+            clip.stop();
+            clip.close();
+            clip = null;
+        }
 
-        // Agregar al historial
-        String entradaHistorial = actual.nombre + " - " + 
-            (actualToCancion(actual).getArtista() != null && !actualToCancion(actual).getArtista().isEmpty() 
-                ? actualToCancion(actual).getArtista() : "Desconocido");
-        historialReproduccion.add(entradaHistorial);
+        String extension = getFileExtension(actual.ruta);
+        Cancion cancion = actualToCancion(actual);
+        if ("mp3".equalsIgnoreCase(extension) || "wav".equalsIgnoreCase(extension)) {
+            reproducirConMediaPlayer(cancion);
+        } else if ("wma".equalsIgnoreCase(extension)) {
+            reproducirConJavaSound(cancion);
+        } else {
+            mostrarAlerta("Formato no soportado: " + extension);
+        }
+    }
 
-        Media media = new Media(new File(actual.ruta).toURI().toString());
-        mediaPlayer = new MediaPlayer(media);
+    private void reproducirConMediaPlayer(Cancion cancion) {
+        try {
+            Media media = new Media(new File(actual.ruta).toURI().toString());
+            mediaPlayer = new MediaPlayer(media);
 
-        mediaPlayer.setOnReady(() -> {
-            mediaPlayer.setVolume(sliderVolumen.getValue() / 100);
-            sliderProgreso.setMax(mediaPlayer.getMedia().getDuration().toSeconds());
-            sliderProgreso.setDisable(false);
-            actualizarEtiqueta();
+            mediaPlayer.setOnReady(() -> {
+                // Registrar en el historial solo si la canción se carga correctamente
+                String entradaHistorial = actual.nombre + " - " +
+                        (cancion.getArtista() != null && !cancion.getArtista().isEmpty()
+                                ? cancion.getArtista() : "Desconocido");
+                if (historialReproduccion.isEmpty() || !historialReproduccion.get(historialReproduccion.size() - 1).equals(entradaHistorial)) {
+                    historialReproduccion.add(entradaHistorial);
+                }
 
-            String artista = (String) media.getMetadata().get("artist");
-            String genero = (String) media.getMetadata().get("genre");
+                mediaPlayer.setVolume(sliderVolumen.getValue() / 100);
+                sliderProgreso.setMax(mediaPlayer.getMedia().getDuration().toSeconds());
+                sliderProgreso.setDisable(false);
+                actualizarEtiqueta();
 
-            labelArtista.setText("👤 Artista: " + (artista != null ? artista : "Desconocido"));
-            labelGenero.setText("🎶 Género: " + (genero != null ? genero : "Desconocido"));
-        });
+                String artista = cancion.getArtista() != null ? cancion.getArtista() : "Desconocido";
+                String genero = cancion.getGenero() != null ? cancion.getGenero() : "Desconocido";
+                labelArtista.setText("👤 Artista: " + artista);
+                labelGenero.setText("🎶 Género: " + genero);
 
-        mediaPlayer.currentTimeProperty().addListener((obs, oldTime, newTime) -> {
-            sliderProgreso.setValue(newTime.toSeconds());
-            actualizarTiempo(newTime, mediaPlayer.getMedia().getDuration());
-        });
+                mediaPlayer.currentTimeProperty().addListener((obs, oldTime, newTime) -> {
+                    if (!sliderProgreso.isValueChanging()) {
+                        sliderProgreso.setValue(newTime.toSeconds());
+                        actualizarTiempo(newTime, mediaPlayer.getMedia().getDuration());
+                    }
+                });
 
-        mediaPlayer.setOnEndOfMedia(() -> {
-            sliderProgreso.setValue(sliderProgreso.getMax());
-            actual = modoAleatorio ? seleccionarAleatoria() : actual.siguiente;
-            if (actual != null) {
-                tablaCanciones.getSelectionModel().select(actualToCancion(actual));
-                reproducirCancionSeleccionada();
+                mediaPlayer.setOnEndOfMedia(() -> {
+                    sliderProgreso.setValue(sliderProgreso.getMax());
+                    actual = modoAleatorio ? seleccionarAleatoria() : actual.siguiente;
+                    if (actual != null) {
+                        tablaCanciones.getSelectionModel().select(actualToCancion(actual));
+                        reproducirCancionSeleccionada();
+                    }
+                });
 
+                mediaPlayer.play();
+                enPausa = false;
+            });
+
+            mediaPlayer.setOnError(() -> {
+                mostrarAlerta("Error al reproducir " + getFileExtension(actual.ruta).toUpperCase() + ": " + mediaPlayer.getError().getMessage());
+                mediaPlayer.dispose();
+                mediaPlayer = null;
+            });
+        } catch (Exception e) {
+            mostrarAlerta("Error al reproducir " + getFileExtension(actual.ruta).toUpperCase() + ": " + e.getMessage());
+        }
+    }
+
+    private void reproducirConJavaSound(Cancion cancion) {
+        AudioInputStream audioInputStream = null;
+        try {
+            // Cargar el archivo de audio
+            File audioFile = new File(actual.ruta);
+            audioInputStream = AudioSystem.getAudioInputStream(audioFile);
+
+            // Imprimir el formato para depuración
+            AudioFormat originalFormat = audioInputStream.getFormat();
+            System.out.println("Formato original de " + cancion.getNombre() + ": " + originalFormat);
+
+            // Definir un formato compatible (PCM_SIGNED, 16 bits, estéreo o mono)
+            AudioFormat targetFormat = new AudioFormat(
+                    AudioFormat.Encoding.PCM_SIGNED,
+                    originalFormat.getSampleRate(),
+                    16,
+                    originalFormat.getChannels(),
+                    originalFormat.getChannels() * 2, // 2 bytes por canal (16 bits)
+                    originalFormat.getSampleRate(),
+                    false // little-endian
+            );
+
+            // Verificar si el formato es soportado (con Tritonus, debería serlo)
+            if (!AudioSystem.isConversionSupported(targetFormat, originalFormat)) {
+                mostrarAlerta("Formato de audio WMA no soportado por Tritonus: " + originalFormat);
+                return;
             }
-        });
 
-        mediaPlayer.play();
-        enPausa = false;
+            // Convertir el flujo de audio al formato compatible
+            AudioInputStream convertedStream = AudioSystem.getAudioInputStream(targetFormat, audioInputStream);
+            clip = AudioSystem.getClip();
+            clip.open(convertedStream);
+
+            // Configurar volumen
+            FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            float volume = (float) (sliderVolumen.getValue() / 100.0);
+            float dB = (float) (Math.log(volume == 0 ? 0.0001 : volume) / Math.log(10.0) * 20.0);
+            gainControl.setValue(dB);
+
+            // Configurar slider de progreso
+            long durationMicros = clip.getMicrosecondLength();
+            if (durationMicros <= 0) {
+                mostrarAlerta("No se pudo determinar la duración del archivo WMA: " + cancion.getNombre());
+                clip.close();
+                clip = null;
+                return;
+            }
+
+            // Registrar en el historial solo si la canción se carga correctamente
+            String entradaHistorial = actual.nombre + " - " +
+                    (cancion.getArtista() != null && !cancion.getArtista().isEmpty()
+                            ? cancion.getArtista() : "Desconocido");
+            if (historialReproduccion.isEmpty() || !historialReproduccion.get(historialReproduccion.size() - 1).equals(entradaHistorial)) {
+                historialReproduccion.add(entradaHistorial);
+            }
+
+            // Actualizar etiquetas
+            actualizarEtiqueta();
+            String artista = cancion.getArtista() != null ? cancion.getArtista() : "Desconocido";
+            String genero = cancion.getGenero() != null ? cancion.getGenero() : "Desconocido";
+            labelArtista.setText("👤 Artista: " + artista);
+            labelGenero.setText("🎶 Género: " + genero);
+
+            double durationSeconds = durationMicros / 1000000.0;
+            sliderProgreso.setMax(durationSeconds);
+            sliderProgreso.setDisable(false);
+
+            // Actualizar slider durante reproducción
+            Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(0.1), ev -> {
+                if (clip != null && clip.isRunning()) {
+                    sliderProgreso.setValue(clip.getMicrosecondPosition() / 1000000.0);
+                    actualizarTiempo(Duration.seconds(clip.getMicrosecondPosition() / 1000000.0), Duration.seconds(durationSeconds));
+                }
+            }));
+            timeline.setCycleCount(Timeline.INDEFINITE);
+            timeline.play();
+
+            // Manejar fin de reproducción
+            clip.addLineListener(event -> {
+                if (event.getType() == javax.sound.sampled.LineEvent.Type.STOP && clip != null && clip.getMicrosecondPosition() >= durationMicros) {
+                    timeline.stop();
+                    sliderProgreso.setValue(durationSeconds);
+                    actual = modoAleatorio ? seleccionarAleatoria() : actual.siguiente;
+                    if (actual != null) {
+                        tablaCanciones.getSelectionModel().select(actualToCancion(actual));
+                        reproducirCancionSeleccionada();
+                    }
+                }
+            });
+
+            clip.start();
+            enPausa = false;
+        } catch (UnsupportedAudioFileException e) {
+            mostrarAlerta("Formato de audio WMA no soportado: " + e.getMessage());
+            e.printStackTrace();
+        } catch (LineUnavailableException e) {
+            mostrarAlerta("Línea de audio no disponible para WMA: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            mostrarAlerta("Error al reproducir WMA: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            // Cerrar el flujo de audio si no se usa
+            if (audioInputStream != null) {
+                try {
+                    audioInputStream.close();
+                } catch (Exception e) {
+                    System.err.println("Error al cerrar AudioInputStream: " + e.getMessage());
+                }
+            }
+        }
+    }
+
+    private String getFileExtension(String path) {
+        int lastDot = path.lastIndexOf('.');
+        if (lastDot != -1 && lastDot < path.length() - 1) {
+            return path.substring(lastDot + 1).toLowerCase();
+        }
+        return "";
     }
 
     @FXML
@@ -308,8 +477,13 @@ public class ReproductorDeMusicaController {
                 actual = listaReproduccion.buscarPorNombre(seleccion.getNombre());
                 reproducirCancionSeleccionada();
             }
-        } else if (mediaPlayer != null && enPausa) {
-            mediaPlayer.play();
+        } else if (enPausa) {
+            if (mediaPlayer != null) {
+                mediaPlayer.play();
+            }
+            if (clip != null && clip.isOpen()) {
+                clip.start();
+            }
             enPausa = false;
             actualizarEtiqueta();
         } else if (modoAleatorio) {
@@ -321,16 +495,15 @@ public class ReproductorDeMusicaController {
 
     @FXML
     public void Pausa(ActionEvent event) {
-        if (mediaPlayer != null) {
-            if (enPausa) {
-                mediaPlayer.play();
-                enPausa = false;
-                actualizarEtiqueta();
-            } else {
-                mediaPlayer.pause();
-                enPausa = true;
-                labelCancion.setText("⏸ Pausado: " + actual.nombre);
-            }
+        if (mediaPlayer != null && !enPausa) {
+            mediaPlayer.pause();
+            enPausa = true;
+            labelCancion.setText("⏸ Pausado: " + actual.nombre);
+        }
+        if (clip != null && clip.isRunning()) {
+            clip.stop();
+            enPausa = true;
+            labelCancion.setText("⏸ Pausado: " + actual.nombre);
         }
     }
 
@@ -367,7 +540,7 @@ public class ReproductorDeMusicaController {
     }
 
     private void actualizarEtiqueta() {
-        if (labelCancion != null && actual != null && mediaPlayer != null) {
+        if (labelCancion != null && actual != null) {
             labelCancion.setText("🎵 Reproduciendo: " + actual.nombre);
         }
     }
@@ -397,6 +570,7 @@ public class ReproductorDeMusicaController {
     class NodoCancion {
         String nombre, ruta;
         NodoCancion anterior, siguiente;
+
         public NodoCancion(String nombre, String ruta) {
             this.nombre = nombre;
             this.ruta = ruta;
