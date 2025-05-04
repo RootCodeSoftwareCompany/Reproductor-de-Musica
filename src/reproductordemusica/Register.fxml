@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.Rectangle?>
@@ -19,49 +18,65 @@
                <Font size="16.0" />
             </font>
          </Button>
+         
          <Rectangle arcHeight="25.0" arcWidth="25.0" height="460.0" layoutX="50.0" layoutY="50.0" style="-fx-fill: rgba(255, 255, 255, 0.2);" width="660.0" />
          <Pane layoutX="206.0" layoutY="59.0" prefHeight="443.0" prefWidth="350.0" style="-fx-background-color: #ffffff; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 10, 0, 0, 4);">
             <children>
-               <Label layoutX="25.0" layoutY="14.0" text="Nombre de Usuario" textFill="#34495e">
+               <Label layoutX="25.0" layoutY="12.0" text="Nombre de Usuario" textFill="#34495e">
                   <font>
                      <Font size="18.0" />
                   </font>
                </Label>
-                 <TextField fx:id="usernameField" layoutX="22.0" layoutY="39.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="40.0" prefWidth="300.0" promptText="Nombre de Usuario" style="-fx-background-radius: 10; -fx-border-color: #bdc3c7; -fx-border-radius: 10;">
+               
+                 <TextField fx:id="usernameField" layoutX="22.0" layoutY="36.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="40.0" prefWidth="300.0" promptText="Nombre de Usuario" style="-fx-background-radius: 10; -fx-border-color: #bdc3c7; -fx-border-radius: 10;">
                   <font>
                      <Font size="18.0" />
                   </font>
                </TextField>
-               <Label layoutX="25.0" layoutY="88.0" text="Contraseña" textFill="#34495e">
+               
+               <Label layoutX="25.0" layoutY="92.0" text="Contraseña" textFill="#34495e">
                   <font>
                      <Font size="18.0" />
                   </font>
                </Label>
-                 <PasswordField fx:id="passwordField" layoutX="25.0" layoutY="113.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="40.0" prefWidth="300.0" promptText="Contraseña" style="-fx-background-radius: 10; -fx-border-color: #bdc3c7; -fx-border-radius: 10;">
+               
+                 <PasswordField fx:id="passwordField" layoutX="22.0" layoutY="116.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="40.0" prefWidth="300.0" promptText="Contraseña" style="-fx-background-radius: 10; -fx-border-color: #bdc3c7; -fx-border-radius: 10;">
                   <font>
                      <Font size="18.0" />
                   </font>
                </PasswordField>
-               <Label layoutX="25.0" layoutY="161.0" text="Confirmar Contraseña" textFill="#34495e">
+               
+               <Label fx:id="lblRequisitos"
+                    layoutX="25.0" layoutY="160.0" prefWidth="300.0"
+                    text="Mínimo 8 caracteres: letras, números y símbolos."
+                    style="-fx-text-fill: gray; -fx-font-size: 11px;"
+                    wrapText="true"
+                    visible="false" />
+               
+               <Label layoutX="25.0" layoutY="172.0" text="Confirmar Contraseña" textFill="#34495e">
                   <font>
                      <Font size="18.0" />
                   </font>
                </Label>
-                 <PasswordField fx:id="confirmPasswordField" layoutX="25.0" layoutY="186.0" prefHeight="40.0" prefWidth="300.0" promptText="Confirmar Contraseña" style="-fx-background-radius: 10; -fx-border-color: #bdc3c7; -fx-border-radius: 10;">
+               
+                 <PasswordField fx:id="confirmPasswordField" layoutX="22.0" layoutY="196.0" prefHeight="40.0" prefWidth="300.0" promptText="Confirmar Contraseña" style="-fx-background-radius: 10; -fx-border-color: #bdc3c7; -fx-border-radius: 10;">
                   <font>
                      <Font size="18.0" />
                   </font>
                </PasswordField>
-               <Label layoutX="22.0" layoutY="248.0" text="Edad" textFill="#34495e">
+               
+               <Label layoutX="25.0" layoutY="248.0" text="Edad" textFill="#34495e">
                   <font>
                      <Font size="18.0" />
                   </font>
                </Label>
+               
                <TextField fx:id="ageField" alignment="BOTTOM_RIGHT" layoutX="86.0" layoutY="240.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="40.0" prefWidth="235.0" promptText="Edad" style="-fx-background-radius: 10; -fx-border-color: #bdc3c7; -fx-border-radius: 10;">
                   <font>
                      <Font size="18.0" />
                   </font>
                </TextField>
+               
                <Label layoutX="25.0" layoutY="288.0" text="Preferencias Musicales" textFill="#34495e">
                   <font>
                      <Font size="18.0" />

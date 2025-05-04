@@ -28,11 +28,12 @@ public class RegisterController {
     @FXML private TextField ageField;
     @FXML private CheckBox chkRock, chkPop, chkJazz, chkClasica, chkReggaeton, chkElectronica, chkTrapLatino;
     @FXML private Label messageLabel;
+    @FXML private Label lblRequisitos;
 
     @FXML
     private void handleRegister(ActionEvent event) {
         String usuario = usernameField.getText().trim();
-        String contraseña = passwordField.getText();
+        String contraseña = passwordField.getText().trim();
         String confirmarContraseña = confirmPasswordField.getText();
         String edadText = ageField.getText().trim();
 
@@ -52,12 +53,12 @@ public class RegisterController {
             messageLabel.setText("Edad debe ser un número.");
             return;
         }
-
+        
         if (!contraseña.equals(confirmarContraseña)) {
             messageLabel.setText("Las contraseñas no coinciden.");
             return;
         }
-
+        
         if (UserAuth.existeUsuario(usuario)) {
             messageLabel.setText("El usuario ya existe.");
             return;
@@ -102,6 +103,33 @@ public class RegisterController {
             e.printStackTrace();
             messageLabel.setText("Error al guardar el usuario.");
         }
+    }
+    
+    @FXML
+    private void initialize() {
+        passwordField.setOnMouseClicked(e -> lblRequisitos.setVisible(true));
+        passwordField.textProperty().addListener((obs, oldText, newText) -> {
+            if (newText.isEmpty()) {
+                lblRequisitos.setVisible(false);
+            } else {
+                lblRequisitos.setVisible(true);
+
+                if (esContrasenaSegura(newText)) {
+                    lblRequisitos.setStyle("-fx-text-fill: green; -fx-font-size: 11;");
+                } else {
+                    lblRequisitos.setStyle("-fx-text-fill: red; -fx-font-size: 11;");
+                }
+            }
+        });
+    }
+
+    
+    private boolean esContrasenaSegura(String contrasena) {
+        if (contrasena.length() < 8) return false;
+        boolean tieneLetra = contrasena.matches(".*[a-z].*");
+        boolean tieneNumero = contrasena.matches(".*[0-9].*");
+        boolean tieneSimbolo = contrasena.matches(".*[!@#$%^&*(),.?\":{}|<>].*");
+        return tieneLetra && tieneNumero && tieneSimbolo;
     }
 
     private void clearFields() {
