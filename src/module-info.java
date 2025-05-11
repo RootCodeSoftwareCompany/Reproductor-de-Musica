@@ -16,6 +16,7 @@ module Reproductordemusica {
     requires java.base;
 
     requires jaudiotagger;
+    requires tritonus.all;
 
     opens reproductordemusica to javafx.fxml;
     exports reproductordemusica;

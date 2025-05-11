@@ -10,6 +10,8 @@ import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.AudioEqualizer;
+import javafx.scene.media.EqualizerBand;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import javax.sound.sampled.*;
@@ -28,6 +30,10 @@ public class ReproductorDeMusicaController {
     private final ObservableList<Cancion> cancionesList = FXCollections.observableArrayList();
     private final Map<String, ArrayList<Cancion>> listasDeReproduccion = new HashMap<>();
     private final ObservableList<String> historialReproduccion = FXCollections.observableArrayList();
+    
+    // Variables para el ecualizador
+    private AudioEqualizer equalizer; // Para MediaPlayer (MP3/WAV)
+    private Map<String, Float> javaSoundEQGains = new HashMap<>(); // Para JavaSound (WMA)
 
     @FXML private TableView<Cancion> tablaCanciones;
     @FXML private ComboBox<String> comboBoxListas;
@@ -49,6 +55,9 @@ public class ReproductorDeMusicaController {
     @FXML private Button btnEliminarCancion;
     @FXML private Button btnEliminarLista;
     @FXML private ListView<String> listaHistorial;
+    @FXML private Slider sliderBajos;
+    @FXML private Slider sliderMedios;
+    @FXML private Slider sliderAgudos;
 
     @FXML
     public void initialize() {
@@ -99,6 +108,63 @@ public class ReproductorDeMusicaController {
             }
         });
 
+        // Inicializar sliders del ecualizador
+        sliderBajos.setMin(-12.0); // -12 dB a +12 dB
+        sliderBajos.setMax(12.0);
+        sliderBajos.setValue(0.0);
+        sliderMedios.setMin(-12.0);
+        sliderMedios.setMax(12.0);
+        sliderMedios.setValue(0.0);
+        sliderAgudos.setMin(-12.0);
+        sliderAgudos.setMax(12.0);
+        sliderAgudos.setValue(0.0);
+
+        // Listeners para los sliders del ecualizador
+        sliderBajos.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (mediaPlayer != null && equalizer != null) {
+                // Ajustar bandas de bajos (~20-250 Hz)
+                for (EqualizerBand band : equalizer.getBands()) {
+                    if (band.getCenterFrequency() <= 250) {
+                        band.setGain(newVal.doubleValue());
+                    }
+                }
+            }
+            if (clip != null && clip.isOpen()) {
+                javaSoundEQGains.put("bajos", newVal.floatValue());
+                aplicarEcualizadorJavaSound();
+            }
+        });
+
+        sliderMedios.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (mediaPlayer != null && equalizer != null) {
+                // Ajustar bandas de medios (~250-4000 Hz)
+                for (EqualizerBand band : equalizer.getBands()) {
+                    if (band.getCenterFrequency() > 250 && band.getCenterFrequency() <= 4000) {
+                        band.setGain(newVal.doubleValue());
+                    }
+                }
+            }
+            if (clip != null && clip.isOpen()) {
+                javaSoundEQGains.put("medios", newVal.floatValue());
+                aplicarEcualizadorJavaSound();
+            }
+        });
+
+        sliderAgudos.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (mediaPlayer != null && equalizer != null) {
+                // Ajustar bandas de agudos (~4000-16000 Hz)
+                for (EqualizerBand band : equalizer.getBands()) {
+                    if (band.getCenterFrequency() > 4000) {
+                        band.setGain(newVal.doubleValue());
+                    }
+                }
+            }
+            if (clip != null && clip.isOpen()) {
+                javaSoundEQGains.put("agudos", newVal.floatValue());
+                aplicarEcualizadorJavaSound();
+            }
+        });
+
         botonAleatorio.setOnAction(e -> {
             modoAleatorio = botonAleatorio.isSelected();
             cambiarColor();
@@ -121,12 +187,9 @@ public class ReproductorDeMusicaController {
 
         // Vincular ListView del historial
         listaHistorial.setItems(historialReproduccion);
-        // Listener para reproducir canción al hacer clic en el historial
         listaHistorial.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
-                // Extraer el nombre de la canción (antes de " - ")
                 String nombreCancion = newVal.split(" - ")[0];
-                // Buscar la canción en cancionesList
                 for (Cancion cancion : cancionesList) {
                     if (cancion.getNombre().equals(nombreCancion)) {
                         isSelectingFromHistory = true;
@@ -298,9 +361,11 @@ public class ReproductorDeMusicaController {
         try {
             Media media = new Media(new File(actual.ruta).toURI().toString());
             mediaPlayer = new MediaPlayer(media);
+            equalizer = mediaPlayer.getAudioEqualizer();
+            equalizer.setEnabled(true);
+            inicializarEcualizadorMediaPlayer();
 
             mediaPlayer.setOnReady(() -> {
-                // Registrar en el historial solo si la canción se carga correctamente
                 String entradaHistorial = actual.nombre + " - " +
                         (cancion.getArtista() != null && !cancion.getArtista().isEmpty()
                                 ? cancion.getArtista() : "Desconocido");
@@ -348,46 +413,55 @@ public class ReproductorDeMusicaController {
         }
     }
 
+    private void inicializarEcualizadorMediaPlayer() {
+        if (equalizer == null) return;
+        ObservableList<EqualizerBand> bands = equalizer.getBands();
+        // Ajustar ganancias iniciales según sliders
+        for (EqualizerBand band : bands) {
+            double freq = band.getCenterFrequency();
+            if (freq <= 250) {
+                band.setGain(sliderBajos.getValue());
+            } else if (freq <= 4000) {
+                band.setGain(sliderMedios.getValue());
+            } else {
+                band.setGain(sliderAgudos.getValue());
+            }
+        }
+    }
+
     private void reproducirConJavaSound(Cancion cancion) {
         AudioInputStream audioInputStream = null;
         try {
-            // Cargar el archivo de audio
             File audioFile = new File(actual.ruta);
             audioInputStream = AudioSystem.getAudioInputStream(audioFile);
 
-            // Imprimir el formato para depuración
             AudioFormat originalFormat = audioInputStream.getFormat();
             System.out.println("Formato original de " + cancion.getNombre() + ": " + originalFormat);
 
-            // Definir un formato compatible (PCM_SIGNED, 16 bits, estéreo o mono)
             AudioFormat targetFormat = new AudioFormat(
                     AudioFormat.Encoding.PCM_SIGNED,
                     originalFormat.getSampleRate(),
                     16,
                     originalFormat.getChannels(),
-                    originalFormat.getChannels() * 2, // 2 bytes por canal (16 bits)
+                    originalFormat.getChannels() * 2,
                     originalFormat.getSampleRate(),
-                    false // little-endian
+                    false
             );
 
-            // Verificar si el formato es soportado (con Tritonus, debería serlo)
             if (!AudioSystem.isConversionSupported(targetFormat, originalFormat)) {
                 mostrarAlerta("Formato de audio WMA no soportado por Tritonus: " + originalFormat);
                 return;
             }
 
-            // Convertir el flujo de audio al formato compatible
             AudioInputStream convertedStream = AudioSystem.getAudioInputStream(targetFormat, audioInputStream);
             clip = AudioSystem.getClip();
             clip.open(convertedStream);
 
-            // Configurar volumen
             FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
             float volume = (float) (sliderVolumen.getValue() / 100.0);
             float dB = (float) (Math.log(volume == 0 ? 0.0001 : volume) / Math.log(10.0) * 20.0);
             gainControl.setValue(dB);
 
-            // Configurar slider de progreso
             long durationMicros = clip.getMicrosecondLength();
             if (durationMicros <= 0) {
                 mostrarAlerta("No se pudo determinar la duración del archivo WMA: " + cancion.getNombre());
@@ -396,7 +470,6 @@ public class ReproductorDeMusicaController {
                 return;
             }
 
-            // Registrar en el historial solo si la canción se carga correctamente
             String entradaHistorial = actual.nombre + " - " +
                     (cancion.getArtista() != null && !cancion.getArtista().isEmpty()
                             ? cancion.getArtista() : "Desconocido");
@@ -404,7 +477,6 @@ public class ReproductorDeMusicaController {
                 historialReproduccion.add(entradaHistorial);
             }
 
-            // Actualizar etiquetas
             actualizarEtiqueta();
             String artista = cancion.getArtista() != null ? cancion.getArtista() : "Desconocido";
             String genero = cancion.getGenero() != null ? cancion.getGenero() : "Desconocido";
@@ -415,7 +487,12 @@ public class ReproductorDeMusicaController {
             sliderProgreso.setMax(durationSeconds);
             sliderProgreso.setDisable(false);
 
-            // Actualizar slider durante reproducción
+            // Aplicar ajustes del ecualizador para JavaSound
+            javaSoundEQGains.put("bajos", (float) sliderBajos.getValue());
+            javaSoundEQGains.put("medios", (float) sliderMedios.getValue());
+            javaSoundEQGains.put("agudos", (float) sliderAgudos.getValue());
+            aplicarEcualizadorJavaSound();
+
             Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(0.1), ev -> {
                 if (clip != null && clip.isRunning()) {
                     sliderProgreso.setValue(clip.getMicrosecondPosition() / 1000000.0);
@@ -425,7 +502,6 @@ public class ReproductorDeMusicaController {
             timeline.setCycleCount(Timeline.INDEFINITE);
             timeline.play();
 
-            // Manejar fin de reproducción
             clip.addLineListener(event -> {
                 if (event.getType() == javax.sound.sampled.LineEvent.Type.STOP && clip != null && clip.getMicrosecondPosition() >= durationMicros) {
                     timeline.stop();
@@ -450,7 +526,6 @@ public class ReproductorDeMusicaController {
             mostrarAlerta("Error al reproducir WMA: " + e.getMessage());
             e.printStackTrace();
         } finally {
-            // Cerrar el flujo de audio si no se usa
             if (audioInputStream != null) {
                 try {
                     audioInputStream.close();
@@ -458,6 +533,22 @@ public class ReproductorDeMusicaController {
                     System.err.println("Error al cerrar AudioInputStream: " + e.getMessage());
                 }
             }
+        }
+    }
+
+    private void aplicarEcualizadorJavaSound() {
+        if (clip == null || !clip.isOpen()) return;
+        try {
+            FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            // Combinar ganancias de bajos, medios y agudos (simplificado)
+            float bajosGain = javaSoundEQGains.getOrDefault("bajos", 0.0f);
+            float mediosGain = javaSoundEQGains.getOrDefault("medios", 0.0f);
+            float agudosGain = javaSoundEQGains.getOrDefault("agudos", 0.0f);
+            // Promediar las ganancias para simular un efecto (limitado por JavaSound)
+            float combinedGain = (bajosGain + mediosGain + agudosGain) / 3.0f;
+            gainControl.setValue(combinedGain);
+        } catch (Exception e) {
+            System.err.println("Error al aplicar ecualizador JavaSound: " + e.getMessage());
         }
     }
 

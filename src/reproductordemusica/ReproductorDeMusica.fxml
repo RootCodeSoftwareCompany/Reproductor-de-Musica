@@ -26,6 +26,8 @@
 
             <!-- Song Info -->
             <Label fx:id="labelCancion" layoutX="340.0" layoutY="538.0" style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Canción: -" textFill="#F0F0F0" />
+            <Label fx:id="labelArtista" layoutX="340.0" layoutY="568.0" style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Artista: -" textFill="#F0F0F0" />
+            <Label fx:id="labelGenero" layoutX="340.0" layoutY="598.0" style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Genero: -" textFill="#F0F0F0" />
 
             <!-- Control Buttons -->
             <Button layoutX="370.0" layoutY="637.0" mnemonicParsing="false" onAction="#Play" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 30; -fx-cursor: hand;" text="▶">
@@ -48,30 +50,52 @@
                   <Font size="18.0" />
                </font>
             </Button>
+            <ToggleButton fx:id="botonAleatorio" alignment="CENTER_LEFT" layoutX="484.0" layoutY="637.0" mnemonicParsing="false" onAction="#cambiarColor" style="-fx-background-radius: 30; -fx-background-color: Blue; -fx-text-fill: white;" text="Aleatorio">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </ToggleButton>
 
             <!-- Sliders -->
             <Label layoutX="750.0" layoutY="695.0" text="Volumen" textFill="WHITE">
-
                <font>
                   <Font size="18.0" />
                </font>
             </Label>
             <Slider fx:id="sliderVolumen" layoutX="750.0" layoutY="737.0" prefWidth="200.0" style="-fx-border-color: white; -fx-border-radius: 10;" />
             <Label layoutX="37.0" layoutY="693.0" text="Progreso" textFill="WHITE">
-
                <font>
                   <Font size="18.0" />
                </font>
             </Label>
-
             <Slider fx:id="sliderProgreso" layoutX="37.0" layoutY="737.0" prefWidth="670.0" style="-fx-border-color: white; -fx-border-radius: 10;" />
-            <ToggleButton fx:id="botonAleatorio" alignment="CENTER_LEFT" layoutX="484.0" layoutY="637.0" mnemonicParsing="false" onAction="#cambiarColor" style="-fx-background-radius: 30; -fx-background-color: Blue; -fx-text-fill: white;" text="Aleatorio">
+
+            <!-- Ecualizador -->
+            <Label layoutX="750.0" layoutY="470.0" text="Ecualizador" textFill="WHITE">
                <font>
                   <Font size="18.0" />
                </font>
-            </ToggleButton>
-            <Label fx:id="labelArtista" layoutX="340.0" layoutY="568.0" style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Artista: -" textFill="#F0F0F0" />
-            <Label fx:id="labelGenero" layoutX="340.0" layoutY="598.0" style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Genero: -" textFill="#F0F0F0" />
+            </Label>
+            <Label layoutX="750.0" layoutY="500.0" text="Bajos (≤250 Hz)" textFill="WHITE">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Slider fx:id="sliderBajos" layoutX="750.0" layoutY="520.0" prefWidth="200.0" style="-fx-border-color: white; -fx-border-radius: 10;" />
+            <Label layoutX="750.0" layoutY="550.0" text="Medios (250-4000 Hz)" textFill="WHITE">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Slider fx:id="sliderMedios" layoutX="750.0" layoutY="570.0" prefWidth="200.0" style="-fx-border-color: white; -fx-border-radius: 10;" />
+            <Label layoutX="750.0" layoutY="600.0" text="Agudos (>4000 Hz)" textFill="WHITE">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Slider fx:id="sliderAgudos" layoutX="750.0" layoutY="620.0" prefWidth="200.0" style="-fx-border-color: white; -fx-border-radius: 10;" />
+
+            <!-- Tabla de Canciones -->
             <TableView fx:id="tablaCanciones" layoutX="58.0" layoutY="141.0" prefHeight="310.0" prefWidth="376.0">
               <columns>
                 <TableColumn fx:id="colNombre" prefWidth="75.0" text="Nombre" />
@@ -81,11 +105,14 @@
                 <TableColumn fx:id="colAlbum" prefWidth="75.0" text="Album" />
               </columns>
             </TableView>
+
+            <!-- Lista de Reproducción -->
             <ComboBox fx:id="comboBoxListas" layoutX="58.0" layoutY="116.0" prefHeight="25.0" prefWidth="376.0" />
             <Button fx:id="btnCrearLista" layoutX="434.0" layoutY="116.0" mnemonicParsing="false" onAction="#crearNuevaLista" text="➕" />
             <Button fx:id="btnAgregarCancion" layoutX="434.0" layoutY="164.0" mnemonicParsing="false" onAction="#agregarCancionesALista" text="Añadir" />
             <Button fx:id="btnEliminarCancion" layoutX="434.0" layoutY="201.0" mnemonicParsing="false" onAction="#eliminarCancionDeLista" text="Eliminar" />
             <Button fx:id="btnEliminarLista" layoutX="463.0" layoutY="116.0" mnemonicParsing="false" onAction="#eliminarLista" text="Eliminar" />
+
             <!-- Historial de Reproducción -->
             <Label layoutX="650.0" layoutY="116.0" text="Historial de Reproducción" textFill="WHITE">
                <font>
