@@ -12,10 +12,10 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="reproductordemusica.ReproductorDeMusicaController">
+<AnchorPane id="AnchorPane" prefHeight="654.0" prefWidth="819.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="reproductordemusica.ReproductorDeMusicaController">
    <children>
       <!-- Background Pane -->
-      <Pane prefHeight="800.0" prefWidth="1000.0" style="-fx-background-color: linear-gradient(to bottom, #1c1c3b, #252545);">
+      <Pane prefHeight="654.0" prefWidth="821.0" style="-fx-background-color: linear-gradient(to bottom, #1c1c3b, #252545);">
          <children>
             <!-- Title -->
             <Label layoutX="218.0" layoutY="20.0" style="-fx-font-weight: bold;" text="Reproductor de Música" textFill="WHITE">
@@ -23,103 +23,131 @@
                   <Font size="32.0" />
                </font>
             </Label>
-
-            <!-- Song Info -->
-            <Label fx:id="labelCancion" layoutX="340.0" layoutY="538.0" style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Canción: -" textFill="#F0F0F0" />
-            <Label fx:id="labelArtista" layoutX="340.0" layoutY="568.0" style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Artista: -" textFill="#F0F0F0" />
-            <Label fx:id="labelGenero" layoutX="340.0" layoutY="598.0" style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Genero: -" textFill="#F0F0F0" />
-
-            <!-- Control Buttons -->
-            <Button layoutX="370.0" layoutY="637.0" mnemonicParsing="false" onAction="#Play" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 30; -fx-cursor: hand;" text="▶">
-               <font>
-                  <Font size="18.0" />
-               </font>
-            </Button>
-            <Button layoutX="328.0" layoutY="637.0" mnemonicParsing="false" onAction="#Pausa" style="-fx-background-color: #e67e22; -fx-text-fill: white; -fx-background-radius: 30; -fx-cursor: hand;" text="⏸">
-               <font>
-                  <Font size="18.0" />
-               </font>
-            </Button>
-            <Button layoutX="407.0" layoutY="637.0" mnemonicParsing="false" onAction="#Siguiente" style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-background-radius: 30; -fx-cursor: hand;" text="⏭">
-               <font>
-                  <Font size="18.0" />
-               </font>
-            </Button>
-            <Button layoutX="288.0" layoutY="637.0" mnemonicParsing="false" onAction="#Anterior" style="-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-background-radius: 30; -fx-cursor: hand;" text="⏮">
-               <font>
-                  <Font size="18.0" />
-               </font>
-            </Button>
-            <ToggleButton fx:id="botonAleatorio" alignment="CENTER_LEFT" layoutX="484.0" layoutY="637.0" mnemonicParsing="false" onAction="#cambiarColor" style="-fx-background-radius: 30; -fx-background-color: Blue; -fx-text-fill: white;" text="Aleatorio">
-               <font>
-                  <Font size="18.0" />
-               </font>
-            </ToggleButton>
-
-            <!-- Sliders -->
-            <Label layoutX="750.0" layoutY="695.0" text="Volumen" textFill="WHITE">
-               <font>
-                  <Font size="18.0" />
-               </font>
-            </Label>
-            <Slider fx:id="sliderVolumen" layoutX="750.0" layoutY="737.0" prefWidth="200.0" style="-fx-border-color: white; -fx-border-radius: 10;" />
-            <Label layoutX="37.0" layoutY="693.0" text="Progreso" textFill="WHITE">
-               <font>
-                  <Font size="18.0" />
-               </font>
-            </Label>
-            <Slider fx:id="sliderProgreso" layoutX="37.0" layoutY="737.0" prefWidth="670.0" style="-fx-border-color: white; -fx-border-radius: 10;" />
-
-            <!-- Ecualizador -->
-            <Label layoutX="750.0" layoutY="470.0" text="Ecualizador" textFill="WHITE">
-               <font>
-                  <Font size="18.0" />
-               </font>
-            </Label>
-            <Label layoutX="750.0" layoutY="500.0" text="Bajos (≤250 Hz)" textFill="WHITE">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Label>
-            <Slider fx:id="sliderBajos" layoutX="750.0" layoutY="520.0" prefWidth="200.0" style="-fx-border-color: white; -fx-border-radius: 10;" />
-            <Label layoutX="750.0" layoutY="550.0" text="Medios (250-4000 Hz)" textFill="WHITE">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Label>
-            <Slider fx:id="sliderMedios" layoutX="750.0" layoutY="570.0" prefWidth="200.0" style="-fx-border-color: white; -fx-border-radius: 10;" />
-            <Label layoutX="750.0" layoutY="600.0" text="Agudos (>4000 Hz)" textFill="WHITE">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Label>
-            <Slider fx:id="sliderAgudos" layoutX="750.0" layoutY="620.0" prefWidth="200.0" style="-fx-border-color: white; -fx-border-radius: 10;" />
-
-            <!-- Tabla de Canciones -->
-            <TableView fx:id="tablaCanciones" layoutX="58.0" layoutY="141.0" prefHeight="310.0" prefWidth="376.0">
-              <columns>
-                <TableColumn fx:id="colNombre" prefWidth="75.0" text="Nombre" />
-                <TableColumn fx:id="colArtista" prefWidth="75.0" text="Artista" />
-                <TableColumn fx:id="colGenero" prefWidth="75.0" text="Genero" />
-                <TableColumn fx:id="colAnio" prefWidth="75.0" text="Año" />
-                <TableColumn fx:id="colAlbum" prefWidth="75.0" text="Album" />
-              </columns>
-            </TableView>
-
-            <!-- Lista de Reproducción -->
-            <ComboBox fx:id="comboBoxListas" layoutX="58.0" layoutY="116.0" prefHeight="25.0" prefWidth="376.0" />
-            <Button fx:id="btnCrearLista" layoutX="434.0" layoutY="116.0" mnemonicParsing="false" onAction="#crearNuevaLista" text="➕" />
-            <Button fx:id="btnAgregarCancion" layoutX="434.0" layoutY="164.0" mnemonicParsing="false" onAction="#agregarCancionesALista" text="Añadir" />
-            <Button fx:id="btnEliminarCancion" layoutX="434.0" layoutY="201.0" mnemonicParsing="false" onAction="#eliminarCancionDeLista" text="Eliminar" />
-            <Button fx:id="btnEliminarLista" layoutX="463.0" layoutY="116.0" mnemonicParsing="false" onAction="#eliminarLista" text="Eliminar" />
-
-            <!-- Historial de Reproducción -->
-            <Label layoutX="650.0" layoutY="116.0" text="Historial de Reproducción" textFill="WHITE">
-               <font>
-                  <Font size="18.0" />
-               </font>
-            </Label>
-            <ListView fx:id="listaHistorial" layoutX="650.0" layoutY="141.0" prefHeight="200.0" prefWidth="250.0" />
+            <Pane layoutX="14.0" layoutY="65.0" prefHeight="368.0" prefWidth="504.0">
+               <children>
+                  <Button fx:id="btnEliminarLista" layoutX="432.0" layoutY="16.0" mnemonicParsing="false" onAction="#eliminarLista" prefHeight="25.0" prefWidth="68.0" text="Eliminar" />
+                  <Button fx:id="btnEliminarCancion" layoutX="398.0" layoutY="99.0" mnemonicParsing="false" onAction="#eliminarCancionDeLista" text="Eliminar" />
+      
+                              <!-- Tabla de Canciones -->
+                  <TableView fx:id="tablaCanciones" layoutX="22.0" layoutY="42.0" prefHeight="310.0" prefWidth="376.0">
+                    <columns>
+                      <TableColumn fx:id="colNombre" prefWidth="75.0" text="Nombre" />
+                      <TableColumn fx:id="colArtista" prefWidth="75.0" text="Artista" />
+                      <TableColumn fx:id="colGenero" prefWidth="75.0" text="Genero" />
+                      <TableColumn fx:id="colAnio" prefWidth="75.0" text="Año" />
+                      <TableColumn fx:id="colAlbum" prefWidth="75.0" text="Album" />
+                    </columns>
+                  </TableView>
+      
+                        <!-- Lista de Reproducción -->
+                  <ComboBox fx:id="comboBoxListas" layoutX="22.0" layoutY="14.0" prefHeight="25.0" prefWidth="376.0" />
+                  <Button fx:id="btnCrearLista" layoutX="398.0" layoutY="16.0" mnemonicParsing="false" onAction="#crearNuevaLista" text="➕" />
+                  <Button fx:id="btnAgregarCancion" layoutX="398.0" layoutY="73.0" mnemonicParsing="false" onAction="#agregarCancionesALista" text="Añadir" />
+               </children>
+            </Pane>
+            <Pane layoutX="21.0" layoutY="433.0" prefHeight="93.0" prefWidth="504.0">
+               <children>
+                  <Label fx:id="labelGenero" layoutX="14.0" style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Genero: -" textFill="#F0F0F0" />
+      
+                  <!-- Song Info -->
+                  <Label fx:id="labelCancion" layoutX="14.0" layoutY="29.0" style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Canción: -" textFill="#F0F0F0" />
+                  <Label fx:id="labelArtista" layoutX="14.0" layoutY="58.0" style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Artista: -" textFill="#F0F0F0" />
+               </children>
+            </Pane>
+            <Pane layoutX="466.0" layoutY="590.0" prefHeight="45.0" prefWidth="321.0">
+               <children>
+      
+                  <!-- Sliders -->
+                  <Label layoutX="9.0" layoutY="2.0" text="Volumen" textFill="WHITE">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <Slider fx:id="sliderVolumen" layoutX="107.0" layoutY="6.0" prefWidth="200.0" style="-fx-border-color: white; -fx-border-radius: 10;" />
+               </children>
+            </Pane>
+            <Pane layoutX="27.0" layoutY="519.0" prefHeight="71.0" prefWidth="760.0">
+               <children>
+                  <Label layoutX="14.0" layoutY="23.0" text="Progreso" textFill="WHITE">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <Slider fx:id="sliderProgreso" layoutX="100.0" layoutY="27.0" prefHeight="17.0" prefWidth="648.0" style="-fx-border-color: white; -fx-border-radius: 10;" />
+               </children>
+            </Pane>
+            <Pane layoutX="524.0" layoutY="76.0" prefHeight="200.0" prefWidth="243.0">
+               <children>
+      
+                  <!-- Ecualizador -->
+                  <Label layoutX="24.0" layoutY="14.0" text="Ecualizador" textFill="WHITE">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <Label layoutX="24.0" layoutY="39.0" text="Bajos (≤250 Hz)" textFill="WHITE">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <Slider fx:id="sliderBajos" layoutX="26.0" layoutY="59.0" prefWidth="200.0" style="-fx-border-color: white; -fx-border-radius: 10;" />
+                  <Label layoutX="26.0" layoutY="90.0" text="Medios (250-4000 Hz)" textFill="WHITE">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <Slider fx:id="sliderMedios" layoutX="26.0" layoutY="110.0" prefWidth="200.0" style="-fx-border-color: white; -fx-border-radius: 10;" />
+                  <Label layoutX="26.0" layoutY="140.0" text="Agudos (&gt;4000 Hz)" textFill="WHITE">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <Slider fx:id="sliderAgudos" layoutX="26.0" layoutY="160.0" prefWidth="200.0" style="-fx-border-color: white; -fx-border-radius: 10;" />
+               </children>
+            </Pane>
+            <Pane layoutX="39.0" layoutY="572.0" prefHeight="63.0" prefWidth="342.0">
+               <children>
+                  <Button layoutX="154.0" layoutY="13.0" mnemonicParsing="false" onAction="#Siguiente" style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-background-radius: 30; -fx-cursor: hand;" text="⏭">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Button>
+      
+                        <!-- Control Buttons -->
+                  <Button layoutX="7.0" layoutY="9.0" mnemonicParsing="false" onAction="#Play" prefHeight="45.0" prefWidth="43.0" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 30; -fx-cursor: hand;" text="▶">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Button>
+                  <Button layoutX="66.0" layoutY="13.0" mnemonicParsing="false" onAction="#Anterior" style="-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-background-radius: 30; -fx-cursor: hand;" text="⏮">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Button>
+                  <Button layoutX="107.0" layoutY="13.0" mnemonicParsing="false" onAction="#Pausa" style="-fx-background-color: #e67e22; -fx-text-fill: white; -fx-background-radius: 30; -fx-cursor: hand;" text="⏸">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Button>
+                  <ToggleButton fx:id="botonAleatorio" alignment="CENTER_LEFT" layoutX="227.0" layoutY="13.0" mnemonicParsing="false" onAction="#cambiarColor" style="-fx-background-radius: 30; -fx-background-color: Blue; -fx-text-fill: white;" text="Aleatorio">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </ToggleButton>
+               </children>
+            </Pane>
+            <Pane layoutX="524.0" layoutY="261.0" prefHeight="258.0" prefWidth="302.0">
+               <children>
+      
+                              <!-- Historial de Reproducción -->
+                  <Label layoutX="44.0" layoutY="14.0" text="Historial de Reproducción" textFill="WHITE">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <ListView fx:id="listaHistorial" layoutX="26.0" layoutY="39.0" prefHeight="200.0" prefWidth="250.0" />
+               </children>
+            </Pane>
          </children>
       </Pane>
    </children>
