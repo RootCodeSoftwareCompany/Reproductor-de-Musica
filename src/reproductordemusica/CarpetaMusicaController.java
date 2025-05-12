@@ -13,6 +13,8 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import javafx.animation.FadeTransition;
+import javafx.util.Duration;
 import javax.swing.JFileChooser;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -100,6 +102,11 @@ public class CarpetaMusicaController implements Initializable {
         stage.setScene(new Scene(root));
         stage.setTitle("Reproductor de Música");
         stage.show();
+        FadeTransition fade = new FadeTransition(Duration.seconds(1), root);
+        fade.setFromValue(0);
+        fade.setToValue(1);
+        fade.play();
+
     }
 
     private void mostrarAlerta(AlertType tipo, String titulo, String mensaje) {

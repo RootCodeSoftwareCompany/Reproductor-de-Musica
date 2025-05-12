@@ -2,6 +2,7 @@ package reproductordemusica;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.animation.FadeTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -81,6 +82,11 @@ public class LoginController implements Initializable {
                 stage.setScene(new Scene(root));
                 stage.setTitle("Reproductor de Música");
                 stage.show();
+                FadeTransition fade = new FadeTransition(Duration.seconds(1), root);
+                fade.setFromValue(0);
+                fade.setToValue(1);
+                fade.play();
+
             } catch (Exception e) {
                 e.printStackTrace();
                 mostrarAlerta("Error", "No se pudo cargar la ventana principal.", Alert.AlertType.ERROR);
