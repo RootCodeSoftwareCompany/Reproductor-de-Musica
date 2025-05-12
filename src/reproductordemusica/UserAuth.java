@@ -175,12 +175,11 @@ public class UserAuth {
         }
     }
 
-    // Método añadido de la segunda clase
     public String obtenerPistaContrasena(String usuario) {
         if (usuario == null || usuario.isEmpty()) {
             return null;
         }
-
+      
         try (BufferedReader reader = new BufferedReader(new FileReader(USERS_FILE))) {
             String linea;
             while ((linea = reader.readLine()) != null) {
@@ -193,7 +192,7 @@ public class UserAuth {
         } catch (IOException e) {
             System.out.println("Error leyendo el archivo de usuarios: " + e.getMessage());
         }
-
-        return null;
+        
+        return null; // No se encontró pista para el usuario
     }
 }

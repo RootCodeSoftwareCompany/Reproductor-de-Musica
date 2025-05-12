@@ -12,9 +12,10 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
+import javafx.scene.Node;
+import javafx.animation.PauseTransition;
 import javafx.util.Duration;
 import javafx.scene.Node;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public class RegisterController {
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
     @FXML private PasswordField confirmPasswordField;
-    @FXML private TextField passwordHintField; // NUEVO CAMPO
+    @FXML private TextField passwordHintField; // Nuevo campo para la pista de contraseña
     @FXML private TextField ageField;
     @FXML private CheckBox chkRock, chkPop, chkJazz, chkClasica, chkReggaeton, chkElectronica, chkTrapLatino;
     @FXML private Label messageLabel;
@@ -162,7 +163,7 @@ public class RegisterController {
         if (chkTrapLatino != null && chkTrapLatino.isSelected()) preferencias.add("Trap Latino");
 
         String preferenciasStr = String.join(",", preferencias);
-        String linea = usuario + ":" + hash + ":" + edad + ":" + preferenciasStr + ":" + pistaContraseña;
+        String linea = usuario + ":" + hash + ":" + edad + ":" + preferenciasStr + ":" + pistaContraseña
 
         try (FileWriter writer = new FileWriter("users.txt", true)) {
             writer.write(linea + "\n");
@@ -202,6 +203,7 @@ public class RegisterController {
         alert.getButtonTypes().setAll(btnSi, btnNo);
         return alert.showAndWait().orElse(btnNo) == btnSi;
     }
+
 
     @FXML
     private void handleEliminarUsuario(ActionEvent event) {
@@ -243,7 +245,9 @@ public class RegisterController {
         usernameField.clear();
         passwordField.clear();
         confirmPasswordField.clear();
+
         if (passwordHintField != null) passwordHintField.clear();
+
         ageField.clear();
         chkRock.setSelected(false);
         chkPop.setSelected(false);
