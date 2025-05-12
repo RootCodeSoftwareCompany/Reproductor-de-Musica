@@ -1,16 +1,40 @@
 package reproductordemusica;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class UserAuth {
 
     private static final String USERS_FILE = "users.txt";
+
+    // Clase interna para representar un usuario
+    public static class Usuario {
+        private String nombre;
+        private int edad;
+        private String preferencias;
+
+        public Usuario(String nombre, int edad, String preferencias) {
+            this.nombre = nombre;
+            this.edad = edad;
+            this.preferencias = preferencias;
+        }
+
+        public String getNombre() {
+            return nombre;
+        }
+
+        public int getEdad() {
+            return edad;
+        }
+
+        public String getPreferencias() {
+            return preferencias;
+        }
+    }
 
     public UserAuth() {
         verificarArchivo();
@@ -31,7 +55,6 @@ public class UserAuth {
 
     public static boolean existeUsuario(String nombreUsuario) {
         File archivoUsuarios = new File(USERS_FILE);
-
         if (!archivoUsuarios.exists()) {
             return false;
         }
@@ -47,7 +70,6 @@ public class UserAuth {
         } catch (Exception e) {
             throw new RuntimeException("Error al leer el archivo de usuarios", e);
         }
-
         return false;
     }
 
@@ -72,7 +94,7 @@ public class UserAuth {
                 String[] partes = linea.split(":");
                 if (partes.length >= 2) {
                     String user = partes[0].trim();
-                    String passHash = partes[1].trim(); // Hash SHA-256
+                    String passHash = partes[1].trim();
                     if (user.equalsIgnoreCase(usuario.trim())) {
                         String hashedInputPassword = hashSHA256(contrasena);
                         return passHash.equals(hashedInputPassword);
@@ -84,6 +106,94 @@ public class UserAuth {
         }
         return false;
     }
+
+    public static List<Usuario> obtenerUsuarios() {
+        List<Usuario> usuarios = new ArrayList<>();
+        File archivoUsuarios = new File(USERS_FILE);
+        if (!archivoUsuarios.exists()) {
+            return usuarios;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(USERS_FILE))) {
+            String linea;
+            while ((linea = reader.readLine()) != null) {
+                String[] partes = linea.split(":");
+                if (partes.length >= 4) {
+                    String nombre = partes[0].trim();
+                    int edad;
+                    try {
+                        edad = Integer.parseInt(partes[2].trim());
+                    } catch (NumberFormatException e) {
+                        edad = 0;
+                    }
+                    String preferencias = partes[3].trim();
+                    usuarios.add(new Usuario(nombre, edad, preferencias));
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error al leer usuarios: " + e.getMessage());
+        }
+        return usuarios;
+    }
+
+    public static boolean eliminarUsuario(String nombreUsuario) {
+        File archivoUsuarios = new File(USERS_FILE);
+        if (!archivoUsuarios.exists()) {
+            return false;
+        }
+
+        List<String> lineas = new ArrayList<>();
+        boolean encontrado = false;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(USERS_FILE))) {
+            String linea;
+            while ((linea = reader.readLine()) != null) {
+                String[] partes = linea.split(":");
+                if (partes.length >= 1 && partes[0].trim().equalsIgnoreCase(nombreUsuario.trim())) {
+                    encontrado = true;
+                    continue;
+                }
+                lineas.add(linea);
+            }
+        } catch (IOException e) {
+            System.out.println("Error al leer usuarios para eliminación: " + e.getMessage());
+            return false;
+        }
+
+        if (!encontrado) {
+            return false;
+        }
+
+        try (FileWriter writer = new FileWriter(USERS_FILE)) {
+            for (String linea : lineas) {
+                writer.write(linea + "\n");
+            }
+            return true;
+        } catch (IOException e) {
+            System.out.println("Error al escribir usuarios tras eliminación: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // Método añadido de la segunda clase
+    public String obtenerPistaContrasena(String usuario) {
+        if (usuario == null || usuario.isEmpty()) {
+            return null;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(USERS_FILE))) {
+            String linea;
+            while ((linea = reader.readLine()) != null) {
+                String[] partes = linea.split(":");
+                // Formato esperado: usuario:hash:edad:preferencias:pista
+                if (partes.length >= 5 && partes[0].trim().equalsIgnoreCase(usuario.trim())) {
+                    return partes[4].trim();
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error leyendo el archivo de usuarios: " + e.getMessage());
+        }
+
+        return null;
+    }
 }
-
-

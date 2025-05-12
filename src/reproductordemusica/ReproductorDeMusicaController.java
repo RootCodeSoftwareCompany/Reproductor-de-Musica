@@ -75,6 +75,25 @@ public class ReproductorDeMusicaController {
                 reproducirCancionSeleccionada();
             }
         });
+        tablaCanciones.setRowFactory(tv -> {
+        TableRow<Cancion> row = new TableRow<>();
+        row.setOnMouseEntered(e -> {
+            row.setScaleX(1.02);
+            row.setScaleY(1.02);
+        });
+        row.setOnMouseExited(e -> {
+            row.setScaleX(1.0);
+            row.setScaleY(1.0);
+        });
+        return row;
+    });
+
+    Timeline pulsoPlay = new Timeline(
+        new KeyFrame(Duration.seconds(0), e -> btnCrearLista.setStyle("-fx-effect: dropshadow(gaussian, yellow, 10, 0.5, 0, 0);")),
+        new KeyFrame(Duration.seconds(1), e -> btnCrearLista.setStyle("-fx-effect: none;"))
+    );
+    pulsoPlay.setCycleCount(Timeline.INDEFINITE);
+    pulsoPlay.play();
 
         sliderVolumen.setMin(0);
         sliderVolumen.setMax(100);
