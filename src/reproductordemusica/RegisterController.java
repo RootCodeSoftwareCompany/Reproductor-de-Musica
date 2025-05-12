@@ -8,10 +8,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.scene.Node;
-
-
-
-
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
 
@@ -25,6 +21,7 @@ public class RegisterController {
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
     @FXML private PasswordField confirmPasswordField;
+    @FXML private TextField passwordHintField; // Nuevo campo para la pista de contraseña
     @FXML private TextField ageField;
     @FXML private CheckBox chkRock, chkPop, chkJazz, chkClasica, chkReggaeton, chkElectronica, chkTrapLatino;
     @FXML private Label messageLabel;
@@ -35,6 +32,7 @@ public class RegisterController {
         String usuario = usernameField.getText().trim();
         String contraseña = passwordField.getText().trim();
         String confirmarContraseña = confirmPasswordField.getText();
+        String pistaContraseña = passwordHintField.getText().trim(); // Obtener la pista de contraseña
         String edadText = ageField.getText().trim();
 
         if (usuario.isEmpty() || contraseña.isEmpty() || confirmarContraseña.isEmpty() || edadText.isEmpty()) {
@@ -64,6 +62,16 @@ public class RegisterController {
             return;
         }
 
+        // Validar que la pista no esté vacía
+        if (pistaContraseña.isEmpty()) {
+            // Puedes hacer que sea obligatorio o simplemente mostrar una advertencia
+            boolean confirmar = mostrarConfirmacionPistaPerdida();
+            if (!confirmar) {
+                passwordHintField.requestFocus();
+                return;
+            }
+        }
+
         String hash = UserAuth.hashSHA256(contraseña);
 
         List<String> preferencias = new ArrayList<>();
@@ -75,7 +83,8 @@ public class RegisterController {
         if (chkElectronica.isSelected()) preferencias.add("Electrónica");
         if (chkTrapLatino.isSelected()) preferencias.add("Trap Latino");
 
-        String linea = usuario + ":" + hash + ":" + edad + ":" + String.join(",", preferencias);
+        // Modificado para incluir la pista de contraseña
+        String linea = usuario + ":" + hash + ":" + edad + ":" + String.join(",", preferencias) + ":" + pistaContraseña;
 
         try (FileWriter writer = new FileWriter("users.txt", true)) {
             writer.write(linea + "\n");
@@ -103,6 +112,20 @@ public class RegisterController {
             e.printStackTrace();
             messageLabel.setText("Error al guardar el usuario.");
         }
+    }
+    
+    private boolean mostrarConfirmacionPistaPerdida() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Pista no proporcionada");
+        alert.setHeaderText("No has proporcionado una pista para recordar tu contraseña");
+        alert.setContentText("Esto podría dificultarte recuperar tu acceso si olvidas tu contraseña. ¿Deseas continuar sin una pista?");
+        
+        ButtonType btnSi = new ButtonType("Sí, continuar");
+        ButtonType btnNo = new ButtonType("No, agregaré una pista");
+        
+        alert.getButtonTypes().setAll(btnSi, btnNo);
+        
+        return alert.showAndWait().orElse(btnNo) == btnSi;
     }
     
     @FXML
@@ -136,6 +159,7 @@ public class RegisterController {
         usernameField.clear();
         passwordField.clear();
         confirmPasswordField.clear();
+        passwordHintField.clear(); // Limpiar el campo de pista
         ageField.clear();
         chkRock.setSelected(false);
         chkPop.setSelected(false);
@@ -160,4 +184,3 @@ public class RegisterController {
         }
     }
 }
-

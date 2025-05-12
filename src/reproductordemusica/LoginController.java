@@ -10,6 +10,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
@@ -27,6 +28,9 @@ public class LoginController implements Initializable {
     
     @FXML
     private Button btnMostrarContrasena;
+    
+    @FXML
+    private Hyperlink lnkOlvideContrasena;
     
     // Necesitamos crear un TextField para mostrar la contraseña
     private TextField txtContrasenaVisible;
@@ -53,7 +57,6 @@ public class LoginController implements Initializable {
         txtContrasenaVisible.setPrefWidth(txtContrasena.getPrefWidth());
         txtContrasenaVisible.setPrefHeight(txtContrasena.getPrefHeight());
         txtContrasenaVisible.setStyle(txtContrasena.getStyle());
-        //txtContrasenaVisible.setPromptText("Ingrese su contraseña");
         txtContrasenaVisible.setVisible(false);
         
         // Sincronizar ambos campos
@@ -80,15 +83,36 @@ public class LoginController implements Initializable {
                 stage.show();
             } catch (Exception e) {
                 e.printStackTrace();
-                mostrarAlerta("Error", "No se pudo cargar la ventana principal.");
+                mostrarAlerta("Error", "No se pudo cargar la ventana principal.", Alert.AlertType.ERROR);
             }
         } else {
-            mostrarAlerta("Acceso denegado", "Usuario o contraseña incorrectos.");
+            mostrarAlerta("Acceso denegado", "Usuario o contraseña incorrectos.", Alert.AlertType.ERROR);
         
             txtUsuario.clear();
             clearPassword();
         }
     }    
+    
+    @FXML
+    public void mostrarPistaContrasena(ActionEvent event) {
+        String usuario = txtUsuario.getText().trim();
+        
+        // Verificar que el usuario haya ingresado su nombre de usuario
+        if (usuario.isEmpty()) {
+            mostrarAlerta("Información necesaria", "Por favor, ingresa tu nombre de usuario para ver la pista.", Alert.AlertType.INFORMATION);
+            txtUsuario.requestFocus();
+            return;
+        }
+        
+        // Obtener la pista de contraseña
+        String pista = userAuth.obtenerPistaContrasena(usuario);
+        
+        if (pista != null && !pista.isEmpty()) {
+            mostrarAlerta("Pista para recordar contraseña", "La pista para tu contraseña es: " + pista, Alert.AlertType.INFORMATION);
+        } else {
+            mostrarAlerta("Pista no disponible", "No se encontró ninguna pista para el usuario especificado o el usuario no existe.", Alert.AlertType.WARNING);
+        }
+    }
     
     @FXML
     public void togglePasswordVisibility(ActionEvent event) {
@@ -119,8 +143,8 @@ public class LoginController implements Initializable {
         txtContrasenaVisible.clear();
     }
 
-    private void mostrarAlerta(String titulo, String mensaje) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
+    private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
+        Alert alert = new Alert(tipo);
         alert.setTitle(titulo);
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
@@ -140,7 +164,7 @@ public class LoginController implements Initializable {
                 stage.show();
             } catch (Exception ex) {
                 ex.printStackTrace();
-                mostrarAlerta("Error", "No se pudo cargar la ventana de registro.");
+                mostrarAlerta("Error", "No se pudo cargar la ventana de registro.", Alert.AlertType.ERROR);
             }
         });
         pause.play();

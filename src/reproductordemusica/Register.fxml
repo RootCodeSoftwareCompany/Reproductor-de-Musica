@@ -1,115 +1,106 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="560.0" prefWidth="760.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="reproductordemusica.RegisterController">
-   <Pane minHeight="-Infinity" minWidth="-Infinity" prefHeight="560.0" prefWidth="760.0" style="-fx-background-color: linear-gradient(to bottom, #2c3e50, #34495e);">
-      <children>
-           <Label alignment="CENTER" layoutX="192.0" layoutY="-6.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="61.0" prefWidth="379.0" style="-fx-font-size: 35px; -fx-text-fill: white;" text="Registro de Usuario">
-            <font>
-               <Font size="43.0" />
-            </font>
-         </Label>
-         <Button layoutX="579.0" layoutY="8.0" onAction="#handleBackToLogin" prefHeight="32.0" prefWidth="167.0" style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand;" text="Volver al Login">
-            <font>
-               <Font size="16.0" />
-            </font>
-         </Button>
-         
-         <Rectangle arcHeight="25.0" arcWidth="25.0" height="460.0" layoutX="50.0" layoutY="50.0" style="-fx-fill: rgba(255, 255, 255, 0.2);" width="660.0" />
-         <Pane layoutX="206.0" layoutY="59.0" prefHeight="443.0" prefWidth="350.0" style="-fx-background-color: #ffffff; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 10, 0, 0, 4);">
-            <children>
-               <Label layoutX="25.0" layoutY="12.0" text="Nombre de Usuario" textFill="#34495e">
-                  <font>
-                     <Font size="18.0" />
-                  </font>
-               </Label>
-               
-                 <TextField fx:id="usernameField" layoutX="22.0" layoutY="36.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="40.0" prefWidth="300.0" promptText="Nombre de Usuario" style="-fx-background-radius: 10; -fx-border-color: #bdc3c7; -fx-border-radius: 10;">
-                  <font>
-                     <Font size="18.0" />
-                  </font>
-               </TextField>
-               
-               <Label layoutX="25.0" layoutY="92.0" text="Contraseña" textFill="#34495e">
-                  <font>
-                     <Font size="18.0" />
-                  </font>
-               </Label>
-               
-                 <PasswordField fx:id="passwordField" layoutX="22.0" layoutY="116.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="40.0" prefWidth="300.0" promptText="Contraseña" style="-fx-background-radius: 10; -fx-border-color: #bdc3c7; -fx-border-radius: 10;">
-                  <font>
-                     <Font size="18.0" />
-                  </font>
-               </PasswordField>
-               
-               <Label fx:id="lblRequisitos"
-                    layoutX="25.0" layoutY="160.0" prefWidth="300.0"
-                    text="Mínimo 8 caracteres: letras, números y símbolos."
-                    style="-fx-text-fill: gray; -fx-font-size: 11px;"
-                    wrapText="true"
-                    visible="false" />
-               
-               <Label layoutX="25.0" layoutY="172.0" text="Confirmar Contraseña" textFill="#34495e">
-                  <font>
-                     <Font size="18.0" />
-                  </font>
-               </Label>
-               
-                 <PasswordField fx:id="confirmPasswordField" layoutX="22.0" layoutY="196.0" prefHeight="40.0" prefWidth="300.0" promptText="Confirmar Contraseña" style="-fx-background-radius: 10; -fx-border-color: #bdc3c7; -fx-border-radius: 10;">
-                  <font>
-                     <Font size="18.0" />
-                  </font>
-               </PasswordField>
-               
-               <Label layoutX="25.0" layoutY="248.0" text="Edad" textFill="#34495e">
-                  <font>
-                     <Font size="18.0" />
-                  </font>
-               </Label>
-               
-               <TextField fx:id="ageField" alignment="BOTTOM_RIGHT" layoutX="86.0" layoutY="240.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="40.0" prefWidth="235.0" promptText="Edad" style="-fx-background-radius: 10; -fx-border-color: #bdc3c7; -fx-border-radius: 10;">
-                  <font>
-                     <Font size="18.0" />
-                  </font>
-               </TextField>
-               
-               <Label layoutX="25.0" layoutY="288.0" text="Preferencias Musicales" textFill="#34495e">
-                  <font>
-                     <Font size="18.0" />
-                  </font>
-               </Label>
-               
-                <HBox layoutX="25.0" layoutY="317.0" spacing="10.0">
-                   <children>
-                      <CheckBox fx:id="chkRock" text="Rock" style="-fx-text-fill: #34495e; -fx-font-size: 14px;" />
-                      <CheckBox fx:id="chkPop" text="Pop" style="-fx-text-fill: #34495e; -fx-font-size: 14px;" />
-                      <CheckBox fx:id="chkJazz" text="Jazz" style="-fx-text-fill: #34495e; -fx-font-size: 14px;" />
-                      <CheckBox fx:id="chkClasica" text="Clásica" style="-fx-text-fill: #34495e; -fx-font-size: 14px;" />
-                   </children>
-                </HBox>
-
-                <HBox layoutX="25.0" layoutY="345.0" spacing="10.0">
-                   <children>
-                      <CheckBox fx:id="chkReggaeton" text="Reggaetón" style="-fx-text-fill: #34495e; -fx-font-size: 14px;" />
-                      <CheckBox fx:id="chkElectronica" text="Electrónica" style="-fx-text-fill: #34495e; -fx-font-size: 14px;" />
-                      <CheckBox fx:id="chkTrapLatino" text="Trap Latino" style="-fx-text-fill: #34495e; -fx-font-size: 14px;" />
-                   </children>
-                </HBox>
-               
-               <Button layoutX="116.0" layoutY="377.0" onAction="#handleRegister" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand;" text="Registrar">
-                  <font>
-                     <Font size="20.0" />
-                  </font>
-               </Button>
-               
-               <Label fx:id="messageLabel" layoutX="25.0" layoutY="420.0" prefWidth="300.0" style="-fx-text-fill: red;" />
-
-            </children>
-         </Pane>
-      </children>
-   </Pane>
+<AnchorPane prefHeight="565.0" prefWidth="577.0" style="-fx-background-color: linear-gradient(to bottom, #2c3e50, #34495e);" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="reproductordemusica.RegisterController">
+   <children>
+      <!-- Decorative Rectangle -->
+      <Rectangle arcHeight="25.0" arcWidth="25.0" height="500.0" layoutX="39.0" layoutY="33.0" style="-fx-fill: rgba(255, 255, 255, 0.2);" width="500.0" />
+      
+      <!-- Back Button -->
+      <Button layoutX="465.0" layoutY="41.0" onAction="#handleBackToLogin" style="-fx-background-color: #33485c; -fx-text-fill: white; -fx-background-radius: 25;" text="Volver" textFill="#00000051">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Button>
+      
+      <Label layoutX="183.0" layoutY="41.0" text="Registro de Usuario" textFill="#e8ecf0">
+         <font>
+            <Font name="System Bold" size="24.0" />
+         </font>
+      </Label>
+      
+      <!-- Registration Form -->
+      <!-- Username Section -->
+      <Label layoutX="147.0" layoutY="80.0" text="Usuario" textFill="#e8ecf0">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+      <TextField fx:id="usernameField" layoutX="139.0" layoutY="100.0" prefWidth="300.0" promptText="No se distinguen Mayusculas y Minusculas" style="-fx-background-radius: 10; -fx-border-color: #bdc3c7; -fx-border-radius: 10;" />
+      
+      <!-- Password Section -->
+      <Label layoutX="147.0" layoutY="140.0" text="Contraseña" textFill="#e8ecf0">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+      <PasswordField fx:id="passwordField" layoutX="139.0" layoutY="160.0" prefWidth="300.0" promptText="Minimo 8 caracteres" style="-fx-background-radius: 10; -fx-border-color: #bdc3c7; -fx-border-radius: 10;" />
+      
+      <!-- Password Requirements -->
+      <Label fx:id="lblRequisitos" layoutX="139.0" layoutY="190.0" text="Min. 8 caracteres: una letra, un número y un símbolo." textFill="#e8ecf0" visible="false" wrapText="true">
+         <font>
+            <Font size="11.0" />
+         </font>
+      </Label>
+      
+      <!-- Confirm Password Section -->
+      <Label layoutX="147.0" layoutY="200.0" text="Confirmar Contraseña" textFill="#e8ecf0">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+      <PasswordField fx:id="confirmPasswordField" layoutX="139.0" layoutY="220.0" prefWidth="300.0" promptText="Repetir la contraseña" style="-fx-background-radius: 10; -fx-border-color: #bdc3c7; -fx-border-radius: 10;" />
+      
+      <!-- Password Hint Section -->
+      <Label layoutX="147.0" layoutY="260.0" text="Pista para recordar tu contraseña" textFill="#e8ecf0">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+      <TextField fx:id="passwordHintField" layoutX="139.0" layoutY="280.0" prefWidth="300.0" promptText="Palabra o frace para recordar tu contraseña" style="-fx-background-radius: 10; -fx-border-color: #bdc3c7; -fx-border-radius: 10;" />
+      
+      <!-- Age Section -->
+      <Label layoutX="147.0" layoutY="320.0" text="Edad" textFill="#e8ecf0">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+      <TextField fx:id="ageField" layoutX="139.0" layoutY="340.0" prefWidth="300.0" promptText="Mayor a 10 años" style="-fx-background-radius: 10; -fx-border-color: #bdc3c7; -fx-border-radius: 10;" />
+      
+      <!-- Music Preferences Section -->
+      <Label layoutX="139.0" layoutY="380.0" text="Preferencias Musicales:" textFill="#e8ecf0">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+      <CheckBox fx:id="chkRock" layoutX="150.0" layoutY="400.0" text="Rock" textFill="#e8ecf0" />
+      <CheckBox fx:id="chkPop" layoutX="220.0" layoutY="400.0" text="Pop" textFill="#e8ecf0" />
+      <CheckBox fx:id="chkJazz" layoutX="280.0" layoutY="400.0" text="Jazz" textFill="#e8ecf0" />
+      <CheckBox fx:id="chkClasica" layoutX="340.0" layoutY="400.0" text="Clásica" textFill="#e8ecf0" />
+      <CheckBox fx:id="chkReggaeton" layoutX="150.0" layoutY="425.0" text="Reggaetón" textFill="#e8ecf0" />
+      <CheckBox fx:id="chkElectronica" layoutX="245.0" layoutY="425.0" text="Electrónica" textFill="#e8ecf0" />
+      <CheckBox fx:id="chkTrapLatino" layoutX="340.0" layoutY="425.0" text="Trap Latino" textFill="#e8ecf0" />
+      
+      <!-- Register Button -->
+      <Button layoutX="229.0" layoutY="470.0" mnemonicParsing="false" onAction="#handleRegister" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand;" text="Registrar">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Button>
+      
+      <!-- Message Label -->
+      <Label fx:id="messageLabel" alignment="CENTER" layoutX="139.0" layoutY="550.0" prefWidth="300.0" textFill="#e8ecf0">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+   </children>
 </AnchorPane>
