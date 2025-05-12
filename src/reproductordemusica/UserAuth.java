@@ -84,6 +84,26 @@ public class UserAuth {
         }
         return false;
     }
+    
+    // Método para obtener la pista de contraseña de un usuario
+    public String obtenerPistaContrasena(String usuario) {
+        if (usuario == null || usuario.isEmpty()) {
+            return null;
+        }
+        
+        try (BufferedReader reader = new BufferedReader(new FileReader(USERS_FILE))) {
+            String linea;
+            while ((linea = reader.readLine()) != null) {
+                String[] partes = linea.split(":");
+                // El formato del archivo es: usuario:hash:edad:preferencias:pista
+                if (partes.length >= 5 && partes[0].trim().equalsIgnoreCase(usuario.trim())) {
+                    return partes[4].trim(); // La pista está en la posición 4
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error leyendo el archivo de usuarios: " + e.getMessage());
+        }
+        
+        return null; // No se encontró pista para el usuario
+    }
 }
-
-
