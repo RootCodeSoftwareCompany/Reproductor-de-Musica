@@ -163,7 +163,7 @@ public class RegisterController {
         if (chkTrapLatino != null && chkTrapLatino.isSelected()) preferencias.add("Trap Latino");
 
         String preferenciasStr = String.join(",", preferencias);
-        String linea = usuario + ":" + hash + ":" + edad + ":" + preferenciasStr + ":" + pistaContraseña
+        String linea = usuario + ":" + hash + ":" + edad + ":" + preferenciasStr + ":" + pistaContraseña;
 
         try (FileWriter writer = new FileWriter("users.txt", true)) {
             writer.write(linea + "\n");
