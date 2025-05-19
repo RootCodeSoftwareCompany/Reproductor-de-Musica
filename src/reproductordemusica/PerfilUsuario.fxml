@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane id="AnchorPane" prefHeight="695.0" prefWidth="603.0" style="-fx-background-color: linear-gradient(to bottom, #2c3e50, #34495e);" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="reproductordemusica.PerfilUsuarioController">
+   <children>
+      <VBox alignment="TOP_CENTER" layoutX="52.0" layoutY="14.0" prefWidth="500.0" spacing="5.0">
+         <children>
+            
+            <!-- Panel de datos de usuario -->
+            <VBox spacing="10.0" style="-fx-background-color: rgba(255, 255, 255, 0.1); -fx-padding: 15; -fx-background-radius: 10;">
+               <children>
+                  <Label text="Datos de Usuario" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  
+                  <HBox spacing="10.0">
+                     <children>
+                        <Label prefWidth="120.0" text="Usuario:" textFill="WHITE">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="lblNombreUsuario" textFill="WHITE">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+                  
+                  <HBox spacing="10.0">
+                     <children>
+                        <Label prefWidth="120.0" text="Edad:" textFill="WHITE">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <TextField fx:id="txtEdad" prefWidth="100.0" />
+                     </children>
+                  </HBox>
+                  
+                  <Label text="Preferencias musicales:" textFill="WHITE">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  
+                  <HBox spacing="15.0">
+                     <children>
+                        <CheckBox fx:id="chkRock" text="Rock" textFill="WHITE" />
+                        <CheckBox fx:id="chkPop" text="Pop" textFill="WHITE" />
+                        <CheckBox fx:id="chkJazz" text="Jazz" textFill="WHITE" />
+                        <CheckBox fx:id="chkClasica" text="Clásica" textFill="WHITE" />
+                     </children>
+                  </HBox>
+                  
+                  <HBox spacing="15.0">
+                     <children>
+                        <CheckBox fx:id="chkReggaeton" text="Reggaetón" textFill="WHITE" />
+                        <CheckBox fx:id="chkElectronica" text="Electrónica" textFill="WHITE" />
+                        <CheckBox fx:id="chkTrapLatino" text="Trap Latino" textFill="WHITE" />
+                     </children>
+                  </HBox>
+                  
+                  <Button fx:id="btnActualizarDatos" onAction="#actualizarDatos" style="-fx-background-color: #3498db; -fx-text-fill: white;" text="Actualizar Datos" />
+               </children>
+            </VBox>
+            
+            <!-- Panel de cambio de contraseña -->
+            <VBox spacing="10.0" style="-fx-background-color: rgba(255, 255, 255, 0.1); -fx-padding: 15; -fx-background-radius: 10;">
+               <children>
+                  <Label text="Cambiar Contraseña" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  
+                  <HBox spacing="10.0">
+                     <children>
+                        <Label prefWidth="160.0" text="Contraseña actual:" textFill="WHITE">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <PasswordField fx:id="txtContrasenaActual" prefWidth="200.0" />
+                     </children>
+                  </HBox>
+                  
+                  <HBox spacing="10.0">
+                     <children>
+                        <Label prefWidth="160.0" text="Nueva contraseña:" textFill="WHITE">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <PasswordField fx:id="txtContrasenaNueva" prefWidth="200.0" />
+                     </children>
+                  </HBox>
+                  
+                  <HBox spacing="10.0">
+                     <children>
+                        <Label prefWidth="160.0" text="Confirmar contraseña:" textFill="WHITE">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <PasswordField fx:id="txtConfirmarContrasena" prefWidth="200.0" />
+                     </children>
+                  </HBox>
+                  
+                  <Label fx:id="lblRequisitos" text="Mínimo 8 caracteres: letras, números y símbolos." textFill="LIGHTGRAY">
+                     <font>
+                        <Font size="12.0" />
+                     </font>
+                  </Label>
+                  
+                  <Button fx:id="btnCambiarContrasena" onAction="#cambiarContrasena" style="-fx-background-color: #3498db; -fx-text-fill: white;" text="Cambiar Contraseña" />
+               </children>
+            </VBox>
+            
+            <!-- Panel de eliminación de cuenta -->
+            <VBox spacing="10.0" style="-fx-background-color: rgba(255, 255, 255, 0.1); -fx-padding: 15; -fx-background-radius: 10;">
+               <children>
+                  <Label text="Eliminar Cuenta" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  
+                  <Label text="¡ADVERTENCIA! Esta acción no se puede deshacer." textFill="#ff6b6b">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  
+                  <HBox spacing="10.0">
+                     <children>
+                        <Label prefWidth="160.0" text="Confirmar contraseña:" textFill="WHITE">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <PasswordField fx:id="txtContrasenaEliminar" prefWidth="200.0" />
+                     </children>
+                  </HBox>
+                  
+                  <Button fx:id="btnEliminarCuenta" onAction="#eliminarCuenta" style="-fx-background-color: #e74c3c; -fx-text-fill: white;" text="Eliminar Mi Cuenta" />
+               </children>
+            </VBox>
+            
+            <!-- Botones inferiores -->
+            <HBox alignment="CENTER" spacing="20.0">
+               <children>
+                  <Button fx:id="btnVolver" onAction="#volver" style="-fx-background-color: #7f8c8d; -fx-text-fill: white;" text="Volver al Reproductor">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Button>
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

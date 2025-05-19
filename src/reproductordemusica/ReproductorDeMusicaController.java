@@ -6,6 +6,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.media.Media;
@@ -16,7 +19,10 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import javax.sound.sampled.*;
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
+import javafx.animation.FadeTransition;
+import javafx.stage.Stage;
 
 public class ReproductorDeMusicaController {
 
@@ -34,7 +40,10 @@ public class ReproductorDeMusicaController {
     // Variables para el ecualizador
     private AudioEqualizer equalizer; // Para MediaPlayer (MP3/WAV)
     private Map<String, Float> javaSoundEQGains = new HashMap<>(); // Para JavaSound (WMA)
-
+    private UserAuth.Usuario usuarioActual; // Almacena el usuario actual
+    
+    @FXML private MenuButton menuUsuario;
+    @FXML private MenuItem menuItemCerrarSesion;
     @FXML private TableView<Cancion> tablaCanciones;
     @FXML private ComboBox<String> comboBoxListas;
     @FXML private TableColumn<Cancion, String> colNombre;
@@ -61,168 +70,203 @@ public class ReproductorDeMusicaController {
 
     @FXML
     public void initialize() {
-        colNombre.setCellValueFactory(cellData -> cellData.getValue().nombreProperty());
-        colArtista.setCellValueFactory(cellData -> cellData.getValue().artistaProperty());
-        colGenero.setCellValueFactory(cellData -> cellData.getValue().generoProperty());
-        colAlbum.setCellValueFactory(cellData -> cellData.getValue().albumProperty());
-        colAnio.setCellValueFactory(cellData -> cellData.getValue().anioProperty());
+        if (colNombre != null) {
+            colNombre.setCellValueFactory(cellData -> cellData.getValue().nombreProperty());
+        }
+        if (colArtista != null) {
+            colArtista.setCellValueFactory(cellData -> cellData.getValue().artistaProperty());
+        }
+        if (colGenero != null) {
+            colGenero.setCellValueFactory(cellData -> cellData.getValue().generoProperty());
+        }
+        if (colAlbum != null) {
+            colAlbum.setCellValueFactory(cellData -> cellData.getValue().albumProperty());
+        }
+        if (colAnio != null) {
+            colAnio.setCellValueFactory(cellData -> cellData.getValue().anioProperty());
+        }
 
-        tablaCanciones.setItems(cancionesList);
+        if (tablaCanciones != null) {
+            tablaCanciones.setItems(cancionesList);
 
-        tablaCanciones.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null && !isSelectingFromHistory) {
-                actual = listaReproduccion.buscarPorNombre(newVal.getNombre());
-                reproducirCancionSeleccionada();
-            }
-        });
-        tablaCanciones.setRowFactory(tv -> {
-        TableRow<Cancion> row = new TableRow<>();
-        row.setOnMouseEntered(e -> {
-            row.setScaleX(1.02);
-            row.setScaleY(1.02);
-        });
-        row.setOnMouseExited(e -> {
-            row.setScaleX(1.0);
-            row.setScaleY(1.0);
-        });
-        return row;
-    });
-
-    Timeline pulsoPlay = new Timeline(
-        new KeyFrame(Duration.seconds(0), e -> btnCrearLista.setStyle("-fx-effect: dropshadow(gaussian, yellow, 10, 0.5, 0, 0);")),
-        new KeyFrame(Duration.seconds(1), e -> btnCrearLista.setStyle("-fx-effect: none;"))
-    );
-    pulsoPlay.setCycleCount(Timeline.INDEFINITE);
-    pulsoPlay.play();
-
-        sliderVolumen.setMin(0);
-        sliderVolumen.setMax(100);
-        sliderVolumen.setValue(50);
-        sliderVolumen.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (mediaPlayer != null) {
-                mediaPlayer.setVolume(newVal.doubleValue() / 100);
-            }
-            if (clip != null && clip.isOpen()) {
-                try {
-                    FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-                    float volume = newVal.floatValue() / 100;
-                    float dB = (float) (Math.log(volume == 0 ? 0.0001 : volume) / Math.log(10.0) * 20.0);
-                    gainControl.setValue(dB);
-                } catch (Exception e) {
-                    System.err.println("Error al ajustar volumen de Clip: " + e.getMessage());
+            tablaCanciones.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal != null && !isSelectingFromHistory) {
+                    actual = listaReproduccion.buscarPorNombre(newVal.getNombre());
+                    reproducirCancionSeleccionada();
                 }
-            }
-        });
+            });
+            
+            tablaCanciones.setRowFactory(tv -> {
+                TableRow<Cancion> row = new TableRow<>();
+                row.setOnMouseEntered(e -> {
+                    row.setScaleX(1.02);
+                    row.setScaleY(1.02);
+                });
+                row.setOnMouseExited(e -> {
+                    row.setScaleX(1.0);
+                    row.setScaleY(1.0);
+                });
+                return row;
+            });
+        }
 
-        sliderProgreso.setMin(0);
-        sliderProgreso.setValue(0);
-        sliderProgreso.setDisable(true);
-        sliderProgreso.setOnMouseReleased(event -> {
-            if (mediaPlayer != null) {
-                mediaPlayer.seek(Duration.seconds(sliderProgreso.getValue()));
-            }
-            if (clip != null && clip.isOpen()) {
-                clip.setMicrosecondPosition((long) (sliderProgreso.getValue() * 1000000));
-                if (!enPausa) clip.start();
-            }
-        });
+        if (btnCrearLista != null) {
+            Timeline pulsoPlay = new Timeline(
+                new KeyFrame(Duration.seconds(0), e -> btnCrearLista.setStyle("-fx-effect: dropshadow(gaussian, yellow, 10, 0.5, 0, 0);")),
+                new KeyFrame(Duration.seconds(1), e -> btnCrearLista.setStyle("-fx-effect: none;"))
+            );
+            pulsoPlay.setCycleCount(Timeline.INDEFINITE);
+            pulsoPlay.play();
+        }
+
+        if (sliderVolumen != null) {
+            sliderVolumen.setMin(0);
+            sliderVolumen.setMax(100);
+            sliderVolumen.setValue(50);
+            sliderVolumen.valueProperty().addListener((obs, oldVal, newVal) -> {
+                if (mediaPlayer != null) {
+                    mediaPlayer.setVolume(newVal.doubleValue() / 100);
+                }
+                if (clip != null && clip.isOpen()) {
+                    try {
+                        FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                        float volume = newVal.floatValue() / 100;
+                        float dB = (float) (Math.log(volume == 0 ? 0.0001 : volume) / Math.log(10.0) * 20.0);
+                        gainControl.setValue(dB);
+                    } catch (Exception e) {
+                        System.err.println("Error al ajustar volumen de Clip: " + e.getMessage());
+                    }
+                }
+            });
+        }
+
+        if (sliderProgreso != null) {
+            sliderProgreso.setMin(0);
+            sliderProgreso.setValue(0);
+            sliderProgreso.setDisable(true);
+            sliderProgreso.setOnMouseReleased(event -> {
+                if (mediaPlayer != null) {
+                    mediaPlayer.seek(Duration.seconds(sliderProgreso.getValue()));
+                }
+                if (clip != null && clip.isOpen()) {
+                    clip.setMicrosecondPosition((long) (sliderProgreso.getValue() * 1000000));
+                    if (!enPausa) clip.start();
+                }
+            });
+        }
 
         // Inicializar sliders del ecualizador
-        sliderBajos.setMin(-12.0); // -12 dB a +12 dB
-        sliderBajos.setMax(12.0);
-        sliderBajos.setValue(0.0);
-        sliderMedios.setMin(-12.0);
-        sliderMedios.setMax(12.0);
-        sliderMedios.setValue(0.0);
-        sliderAgudos.setMin(-12.0);
-        sliderAgudos.setMax(12.0);
-        sliderAgudos.setValue(0.0);
+        initializeEqualizerSliders();
 
-        // Listeners para los sliders del ecualizador
-        sliderBajos.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (mediaPlayer != null && equalizer != null) {
-                // Ajustar bandas de bajos (~20-250 Hz)
-                for (EqualizerBand band : equalizer.getBands()) {
-                    if (band.getCenterFrequency() <= 250) {
-                        band.setGain(newVal.doubleValue());
-                    }
+        if (botonAleatorio != null) {
+            botonAleatorio.setOnAction(e -> {
+                modoAleatorio = botonAleatorio.isSelected();
+                cambiarColor();
+            });
+        }
+
+        if (comboBoxListas != null) {
+            comboBoxListas.setOnAction(e -> {
+                String nombreSeleccionado = comboBoxListas.getValue();
+                ArrayList<Cancion> cancionesSeleccionadas = listasDeReproduccion.get(nombreSeleccionado);
+                if (cancionesSeleccionadas != null) {
+                    setListaCanciones(cancionesSeleccionadas, false);
                 }
-            }
-            if (clip != null && clip.isOpen()) {
-                javaSoundEQGains.put("bajos", newVal.floatValue());
-                aplicarEcualizadorJavaSound();
-            }
-        });
+                boolean esPrincipal = "Lista Principal".equals(nombreSeleccionado);
+                if (btnAgregarCancion != null) btnAgregarCancion.setVisible(!esPrincipal);
+                if (btnEliminarCancion != null) btnEliminarCancion.setVisible(!esPrincipal);
+            });
+        }
 
-        sliderMedios.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (mediaPlayer != null && equalizer != null) {
-                // Ajustar bandas de medios (~250-4000 Hz)
-                for (EqualizerBand band : equalizer.getBands()) {
-                    if (band.getCenterFrequency() > 250 && band.getCenterFrequency() <= 4000) {
-                        band.setGain(newVal.doubleValue());
-                    }
-                }
-            }
-            if (clip != null && clip.isOpen()) {
-                javaSoundEQGains.put("medios", newVal.floatValue());
-                aplicarEcualizadorJavaSound();
-            }
-        });
-
-        sliderAgudos.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (mediaPlayer != null && equalizer != null) {
-                // Ajustar bandas de agudos (~4000-16000 Hz)
-                for (EqualizerBand band : equalizer.getBands()) {
-                    if (band.getCenterFrequency() > 4000) {
-                        band.setGain(newVal.doubleValue());
-                    }
-                }
-            }
-            if (clip != null && clip.isOpen()) {
-                javaSoundEQGains.put("agudos", newVal.floatValue());
-                aplicarEcualizadorJavaSound();
-            }
-        });
-
-        botonAleatorio.setOnAction(e -> {
-            modoAleatorio = botonAleatorio.isSelected();
-            cambiarColor();
-        });
-
-        comboBoxListas.setOnAction(e -> {
-            String nombreSeleccionado = comboBoxListas.getValue();
-            ArrayList<Cancion> cancionesSeleccionadas = listasDeReproduccion.get(nombreSeleccionado);
-            if (cancionesSeleccionadas != null) {
-                setListaCanciones(cancionesSeleccionadas, false);
-            }
-            boolean esPrincipal = "Lista Principal".equals(nombreSeleccionado);
-            btnAgregarCancion.setVisible(!esPrincipal);
-            btnEliminarCancion.setVisible(!esPrincipal);
-        });
-
-        btnEliminarCancion.setVisible(false);
-        btnAgregarCancion.setVisible(false);
+        if (btnEliminarCancion != null) btnEliminarCancion.setVisible(false);
+        if (btnAgregarCancion != null) btnAgregarCancion.setVisible(false);
         cambiarColor();
 
         // Vincular ListView del historial
-        listaHistorial.setItems(historialReproduccion);
-        listaHistorial.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null) {
-                String nombreCancion = newVal.split(" - ")[0];
-                for (Cancion cancion : cancionesList) {
-                    if (cancion.getNombre().equals(nombreCancion)) {
-                        isSelectingFromHistory = true;
-                        actual = listaReproduccion.buscarPorNombre(cancion.getNombre());
-                        tablaCanciones.getSelectionModel().select(cancion);
-                        reproducirCancionSeleccionada();
-                        isSelectingFromHistory = false;
-                        break;
+        if (listaHistorial != null) {
+            listaHistorial.setItems(historialReproduccion);
+            listaHistorial.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal != null) {
+                    String nombreCancion = newVal.split(" - ")[0];
+                    for (Cancion cancion : cancionesList) {
+                        if (cancion.getNombre().equals(nombreCancion)) {
+                            isSelectingFromHistory = true;
+                            actual = listaReproduccion.buscarPorNombre(cancion.getNombre());
+                            tablaCanciones.getSelectionModel().select(cancion);
+                            reproducirCancionSeleccionada();
+                            isSelectingFromHistory = false;
+                            break;
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
 
         configurarEfectosVisuales();
+        
+        // Verificar si el botón de menú de usuario existe y configurar el handler de cerrar sesión
+        if (menuItemCerrarSesion != null) {
+            menuItemCerrarSesion.setOnAction(this::cerrarSesion);
+        }
+    }
+    
+    private void initializeEqualizerSliders() {
+        if (sliderBajos != null) {
+            sliderBajos.setMin(-12.0);
+            sliderBajos.setMax(12.0);
+            sliderBajos.setValue(0.0);
+            sliderBajos.valueProperty().addListener((obs, oldVal, newVal) -> {
+                if (mediaPlayer != null && equalizer != null) {
+                    for (EqualizerBand band : equalizer.getBands()) {
+                        if (band.getCenterFrequency() <= 250) {
+                            band.setGain(newVal.doubleValue());
+                        }
+                    }
+                }
+                if (clip != null && clip.isOpen()) {
+                    javaSoundEQGains.put("bajos", newVal.floatValue());
+                    aplicarEcualizadorJavaSound();
+                }
+            });
+        }
+        
+        if (sliderMedios != null) {
+            sliderMedios.setMin(-12.0);
+            sliderMedios.setMax(12.0);
+            sliderMedios.setValue(0.0);
+            sliderMedios.valueProperty().addListener((obs, oldVal, newVal) -> {
+                if (mediaPlayer != null && equalizer != null) {
+                    for (EqualizerBand band : equalizer.getBands()) {
+                        if (band.getCenterFrequency() > 250 && band.getCenterFrequency() <= 4000) {
+                            band.setGain(newVal.doubleValue());
+                        }
+                    }
+                }
+                if (clip != null && clip.isOpen()) {
+                    javaSoundEQGains.put("medios", newVal.floatValue());
+                    aplicarEcualizadorJavaSound();
+                }
+            });
+        }
+        
+        if (sliderAgudos != null) {
+            sliderAgudos.setMin(-12.0);
+            sliderAgudos.setMax(12.0);
+            sliderAgudos.setValue(0.0);
+            sliderAgudos.valueProperty().addListener((obs, oldVal, newVal) -> {
+                if (mediaPlayer != null && equalizer != null) {
+                    for (EqualizerBand band : equalizer.getBands()) {
+                        if (band.getCenterFrequency() > 4000) {
+                            band.setGain(newVal.doubleValue());
+                        }
+                    }
+                }
+                if (clip != null && clip.isOpen()) {
+                    javaSoundEQGains.put("agudos", newVal.floatValue());
+                    aplicarEcualizadorJavaSound();
+                }
+            });
+        }
     }
 
     public void setListaCanciones(ArrayList<Cancion> canciones, boolean esPrincipal) {
@@ -236,7 +280,7 @@ public class ReproductorDeMusicaController {
 
         if (esPrincipal) {
             listasDeReproduccion.put("Lista Principal", canciones);
-            if (!comboBoxListas.getItems().contains("Lista Principal")) {
+            if (comboBoxListas != null && !comboBoxListas.getItems().contains("Lista Principal")) {
                 comboBoxListas.getItems().add("Lista Principal");
                 comboBoxListas.getSelectionModel().selectFirst();
             }
@@ -257,7 +301,7 @@ public class ReproductorDeMusicaController {
                 comboBoxListas.getItems().add(nombreLista);
                 comboBoxListas.getSelectionModel().select(nombreLista);
             } else {
-                mostrarAlerta("Nombre inválido o ya existe.");
+                mostrarAlerta("Nombre inválido o ya existe.", Alert.AlertType.WARNING);
             }
         });
     }
@@ -267,7 +311,7 @@ public class ReproductorDeMusicaController {
         String listaSeleccionada = comboBoxListas.getValue();
 
         if ("Lista Principal".equals(listaSeleccionada)) {
-            mostrarAlerta("La Lista Principal no se puede eliminar.");
+            mostrarAlerta("La Lista Principal no se puede eliminar.", Alert.AlertType.WARNING);
             return;
         }
 
@@ -292,13 +336,18 @@ public class ReproductorDeMusicaController {
     public void agregarCancionesALista() {
         String listaSeleccionada = comboBoxListas.getValue();
         if (listaSeleccionada == null || "Lista Principal".equals(listaSeleccionada)) {
-            mostrarAlerta("Selecciona una lista personalizada para agregar canciones.");
+            mostrarAlerta("Selecciona una lista personalizada para agregar canciones.", Alert.AlertType.WARNING);
             return;
         }
 
         List<String> opciones = new ArrayList<>();
         for (Cancion c : listasDeReproduccion.get("Lista Principal")) {
             opciones.add(c.getNombre());
+        }
+        
+        if (opciones.isEmpty()) {
+            mostrarAlerta("No hay canciones disponibles para agregar.", Alert.AlertType.WARNING);
+            return;
         }
 
         ChoiceDialog<String> dialog = new ChoiceDialog<>(opciones.get(0), opciones);
@@ -332,7 +381,7 @@ public class ReproductorDeMusicaController {
         String listaSeleccionada = comboBoxListas.getValue();
 
         if (seleccion == null || listaSeleccionada == null || "Lista Principal".equals(listaSeleccionada)) {
-            mostrarAlerta("Selecciona una canción de una lista personalizada para eliminar.");
+            mostrarAlerta("Selecciona una canción de una lista personalizada para eliminar.", Alert.AlertType.WARNING);
             return;
         }
 
@@ -340,13 +389,13 @@ public class ReproductorDeMusicaController {
         if (lista.removeIf(c -> c.getNombre().equals(seleccion.getNombre()))) {
             setListaCanciones(lista, false);
         } else {
-            mostrarAlerta("No se pudo eliminar la canción.");
+            mostrarAlerta("No se pudo eliminar la canción.", Alert.AlertType.WARNING);
         }
     }
 
-    private void mostrarAlerta(String mensaje) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Advertencia");
+    private void mostrarAlerta(String mensaje, Alert.AlertType tipo) {
+        Alert alert = new Alert(tipo);
+        alert.setTitle(tipo == Alert.AlertType.WARNING ? "Advertencia" : "Información");
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
         alert.showAndWait();
@@ -372,7 +421,7 @@ public class ReproductorDeMusicaController {
         } else if ("wma".equalsIgnoreCase(extension)) {
             reproducirConJavaSound(cancion);
         } else {
-            mostrarAlerta("Formato no soportado: " + extension);
+            mostrarAlerta("Formato no soportado: " + extension, Alert.AlertType.WARNING);
         }
     }
 
@@ -423,12 +472,15 @@ public class ReproductorDeMusicaController {
             });
 
             mediaPlayer.setOnError(() -> {
-                mostrarAlerta("Error al reproducir " + getFileExtension(actual.ruta).toUpperCase() + ": " + mediaPlayer.getError().getMessage());
+                mostrarAlerta("Error al reproducir " + getFileExtension(actual.ruta).toUpperCase() + ": " + 
+                             (mediaPlayer.getError() != null ? mediaPlayer.getError().getMessage() : "Error desconocido"), 
+                             Alert.AlertType.ERROR);
                 mediaPlayer.dispose();
                 mediaPlayer = null;
             });
         } catch (Exception e) {
-            mostrarAlerta("Error al reproducir " + getFileExtension(actual.ruta).toUpperCase() + ": " + e.getMessage());
+            mostrarAlerta("Error al reproducir " + getFileExtension(actual.ruta).toUpperCase() + ": " + e.getMessage(), 
+                         Alert.AlertType.ERROR);
         }
     }
 
@@ -468,7 +520,7 @@ public class ReproductorDeMusicaController {
             );
 
             if (!AudioSystem.isConversionSupported(targetFormat, originalFormat)) {
-                mostrarAlerta("Formato de audio WMA no soportado por Tritonus: " + originalFormat);
+                mostrarAlerta("Formato de audio WMA no soportado por Tritonus: " + originalFormat, Alert.AlertType.ERROR);
                 return;
             }
 
@@ -483,7 +535,7 @@ public class ReproductorDeMusicaController {
 
             long durationMicros = clip.getMicrosecondLength();
             if (durationMicros <= 0) {
-                mostrarAlerta("No se pudo determinar la duración del archivo WMA: " + cancion.getNombre());
+                mostrarAlerta("No se pudo determinar la duración del archivo WMA: " + cancion.getNombre(), Alert.AlertType.ERROR);
                 clip.close();
                 clip = null;
                 return;
@@ -522,7 +574,7 @@ public class ReproductorDeMusicaController {
             timeline.play();
 
             clip.addLineListener(event -> {
-                if (event.getType() == javax.sound.sampled.LineEvent.Type.STOP && clip != null && clip.getMicrosecondPosition() >= durationMicros) {
+                if (event.getType() == LineEvent.Type.STOP && clip != null && clip.getMicrosecondPosition() >= durationMicros) {
                     timeline.stop();
                     sliderProgreso.setValue(durationSeconds);
                     actual = modoAleatorio ? seleccionarAleatoria() : actual.siguiente;
@@ -536,13 +588,13 @@ public class ReproductorDeMusicaController {
             clip.start();
             enPausa = false;
         } catch (UnsupportedAudioFileException e) {
-            mostrarAlerta("Formato de audio WMA no soportado: " + e.getMessage());
+            mostrarAlerta("Formato de audio WMA no soportado: " + e.getMessage(), Alert.AlertType.ERROR);
             e.printStackTrace();
         } catch (LineUnavailableException e) {
-            mostrarAlerta("Línea de audio no disponible para WMA: " + e.getMessage());
+            mostrarAlerta("Línea de audio no disponible para WMA: " + e.getMessage(), Alert.AlertType.ERROR);
             e.printStackTrace();
         } catch (Exception e) {
-            mostrarAlerta("Error al reproducir WMA: " + e.getMessage());
+            mostrarAlerta("Error al reproducir WMA: " + e.getMessage(), Alert.AlertType.ERROR);
             e.printStackTrace();
         } finally {
             if (audioInputStream != null) {
@@ -602,18 +654,21 @@ public class ReproductorDeMusicaController {
             reproducirCancionSeleccionada();
         }
     }
-
     @FXML
     public void Pausa(ActionEvent event) {
         if (mediaPlayer != null && !enPausa) {
             mediaPlayer.pause();
             enPausa = true;
-            labelCancion.setText("⏸ Pausado: " + actual.nombre);
+            if (labelCancion != null) {
+                labelCancion.setText("⏸ Pausado: " + actual.nombre);
+            }
         }
         if (clip != null && clip.isRunning()) {
             clip.stop();
             enPausa = true;
-            labelCancion.setText("⏸ Pausado: " + actual.nombre);
+            if (labelCancion != null) {
+                labelCancion.setText("⏸ Pausado: " + actual.nombre);
+            }
         }
     }
 
@@ -621,8 +676,10 @@ public class ReproductorDeMusicaController {
     public void Siguiente(ActionEvent event) {
         if (actual != null) {
             actual = modoAleatorio ? seleccionarAleatoria() : actual.siguiente;
-            tablaCanciones.getSelectionModel().select(actualToCancion(actual));
-            reproducirCancionSeleccionada();
+            if (tablaCanciones != null) {
+                tablaCanciones.getSelectionModel().select(actualToCancion(actual));
+                reproducirCancionSeleccionada();
+            }
         }
     }
 
@@ -630,16 +687,20 @@ public class ReproductorDeMusicaController {
     public void Anterior(ActionEvent event) {
         if (actual != null) {
             actual = modoAleatorio ? seleccionarAleatoria() : actual.anterior;
-            tablaCanciones.getSelectionModel().select(actualToCancion(actual));
-            reproducirCancionSeleccionada();
+            if (tablaCanciones != null) {
+                tablaCanciones.getSelectionModel().select(actualToCancion(actual));
+                reproducirCancionSeleccionada();
+            }
         }
     }
 
     @FXML
     private void cambiarColor() {
-        botonAleatorio.setStyle(botonAleatorio.isSelected() ?
-                "-fx-background-color: #4CAF50; -fx-text-fill: white;" :
-                "-fx-background-color: #dddddd; -fx-text-fill: black;");
+        if (botonAleatorio != null) {
+            botonAleatorio.setStyle(botonAleatorio.isSelected() ?
+                    "-fx-background-color: #4CAF50; -fx-text-fill: white;" :
+                    "-fx-background-color: #dddddd; -fx-text-fill: black;");
+        }
     }
 
     private NodoCancion seleccionarAleatoria() {
@@ -666,17 +727,91 @@ public class ReproductorDeMusicaController {
     }
 
     private void configurarEfectosVisuales() {
-        DropShadow sombra = new DropShadow(10, Color.GRAY);
-        labelCancion.setEffect(sombra);
+        if (labelCancion != null) {
+            DropShadow sombra = new DropShadow(10, Color.GRAY);
+            labelCancion.setEffect(sombra);
 
-        Timeline parpadeo = new Timeline(
-                new KeyFrame(Duration.seconds(0.5), e -> labelCancion.setTextFill(Color.YELLOW)),
-                new KeyFrame(Duration.seconds(1), e -> labelCancion.setTextFill(Color.WHITE))
-        );
-        parpadeo.setCycleCount(Timeline.INDEFINITE);
-        parpadeo.play();
+            Timeline parpadeo = new Timeline(
+                    new KeyFrame(Duration.seconds(0.5), e -> labelCancion.setTextFill(Color.YELLOW)),
+                    new KeyFrame(Duration.seconds(1), e -> labelCancion.setTextFill(Color.WHITE))
+            );
+            parpadeo.setCycleCount(Timeline.INDEFINITE);
+            parpadeo.play();
+        }
     }
 
+    public void setUsuarioActual(UserAuth.Usuario usuario) {
+        this.usuarioActual = usuario;
+
+        // Configurar el botón del menú con el nombre del usuario
+        if (menuUsuario != null && usuario != null) {
+            menuUsuario.setText(usuario.getNombre() + " ");
+        }
+    }
+
+    // Método para cerrar sesión
+    @FXML
+    public void cerrarSesion(ActionEvent event) {
+        try {
+            // Detener la reproducción si hay algo sonando
+            if (mediaPlayer != null) {
+                mediaPlayer.stop();
+                mediaPlayer.dispose();
+            }
+            if (clip != null && clip.isOpen()) {
+                clip.stop();
+                clip.close();
+            }
+
+            // Cargar la pantalla de login
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("Login.fxml"));
+            Parent root = loader.load();
+
+            // Obtener la ventana actual
+            Stage stage;
+            if (event != null && event.getSource() instanceof MenuItem) {
+                MenuItem source = (MenuItem) event.getSource();
+                MenuButton menuButton = (MenuButton) source.getParentPopup().getOwnerNode();
+                stage = (Stage) menuButton.getScene().getWindow();
+            } else if (menuUsuario != null) {
+                stage = (Stage) menuUsuario.getScene().getWindow();
+            } else {
+                // Intentar obtener la ventana desde cualquier componente disponible
+                stage = findStage();
+                if (stage == null) {
+                    mostrarAlerta("No se pudo obtener la ventana actual.", Alert.AlertType.ERROR);
+                    return;
+                }
+            }
+
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.setTitle("Login");
+            stage.show();
+
+            // Efecto de transición
+            FadeTransition fade = new FadeTransition(Duration.seconds(1), root);
+            fade.setFromValue(0);
+            fade.setToValue(1);
+            fade.play();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            mostrarAlerta("Error al cerrar sesión: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+    
+    // Método auxiliar para encontrar el Stage desde cualquier componente
+    private Stage findStage() {
+        if (tablaCanciones != null) return (Stage) tablaCanciones.getScene().getWindow();
+        if (comboBoxListas != null) return (Stage) comboBoxListas.getScene().getWindow();
+        if (sliderVolumen != null) return (Stage) sliderVolumen.getScene().getWindow();
+        if (botonAleatorio != null) return (Stage) botonAleatorio.getScene().getWindow();
+        if (listaHistorial != null) return (Stage) listaHistorial.getScene().getWindow();
+        return null;
+    }
+
+    // Inner classes
     class NodoCancion {
         String nombre, ruta;
         NodoCancion anterior, siguiente;
@@ -728,5 +863,41 @@ public class ReproductorDeMusicaController {
             }
         }
         return new Cancion(nodo.nombre, nodo.ruta, null, null, null, null);
+    }
+    
+    @FXML
+    public void abrirOpcionesPerfil(ActionEvent event) {
+        try {
+            // Detener la reproducción si hay algo sonando
+            if (mediaPlayer != null) {
+                mediaPlayer.pause();
+            }
+            if (clip != null && clip.isOpen()) {
+                clip.stop();
+            }
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("PerfilUsuario.fxml"));
+            Parent root = loader.load();
+
+            // Pasar el usuario actual y la lista de canciones al controlador
+            PerfilUsuarioController controller = loader.getController();
+            controller.setUsuarioActual(usuarioActual, new ArrayList<>(cancionesList));
+
+            Stage stage = (Stage) menuUsuario.getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.setTitle("Opciones de Perfil");
+            stage.show();
+
+            // Efecto de transición
+            FadeTransition fade = new FadeTransition(Duration.seconds(1), root);
+            fade.setFromValue(0);
+            fade.setToValue(1);
+            fade.play();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlerta("Error al abrir opciones de perfil: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
     }
 }

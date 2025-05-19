@@ -8,6 +8,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import java.io.File;
 import java.net.URL;
@@ -25,10 +26,24 @@ public class CarpetaMusicaController implements Initializable {
 
     private Stage stage;
     private ArrayList<Cancion> listaCanciones = new ArrayList<>();
+    private UserAuth.Usuario usuarioActual; // Variable para almacenar el usuario actual
+    
+    @FXML
+    private Label lblBienvenida; // Label para mostrar el mensaje de bienvenida
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // Inicialización si es necesaria
+    }
+    
+    // Método para establecer el usuario actual
+    public void setUsuarioActual(UserAuth.Usuario usuario) {
+        this.usuarioActual = usuario;
+        
+        // Actualizar mensaje de bienvenida con el nombre del usuario
+        if (lblBienvenida != null && usuario != null) {
+            lblBienvenida.setText("¡Bienvenido/a, " + usuario.getNombre() + "!");
+        }
     }
 
     @FXML
@@ -94,9 +109,10 @@ public class CarpetaMusicaController implements Initializable {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ReproductorDeMusica.fxml"));
         Parent root = loader.load();
 
-        // Pasar la lista al siguiente controlador
+        // Pasar la lista y el usuario al siguiente controlador
         ReproductorDeMusicaController controller = loader.getController();
         controller.setListaCanciones(listaCanciones, true);
+        controller.setUsuarioActual(usuarioActual); // Pasamos el usuario actual al reproductor
 
         stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
         stage.setScene(new Scene(root));
@@ -106,7 +122,6 @@ public class CarpetaMusicaController implements Initializable {
         fade.setFromValue(0);
         fade.setToValue(1);
         fade.play();
-
     }
 
     private void mostrarAlerta(AlertType tipo, String titulo, String mensaje) {
