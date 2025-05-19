@@ -127,13 +127,44 @@ public class UserAuth {
                         edad = 0;
                     }
                     String preferencias = partes[3].trim();
-                    usuarios.add(new Usuario(nombre, edad, preferencias));
+                    Usuario usuario = new Usuario(nombre, edad, preferencias);
+                    usuarios.add(usuario);
                 }
             }
         } catch (IOException e) {
             System.out.println("Error al leer usuarios: " + e.getMessage());
         }
         return usuarios;
+    }
+    
+    // Método para obtener un usuario específico por nombre
+    public static Usuario obtenerUsuarioPorNombre(String nombreUsuario) {
+        File archivoUsuarios = new File(USERS_FILE);
+        if (!archivoUsuarios.exists()) {
+            return null;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(USERS_FILE))) {
+            String linea;
+            while ((linea = reader.readLine()) != null) {
+                String[] partes = linea.split(":");
+                if (partes.length >= 4 && partes[0].trim().equalsIgnoreCase(nombreUsuario.trim())) {
+                    String nombre = partes[0].trim();
+                    int edad;
+                    try {
+                        edad = Integer.parseInt(partes[2].trim());
+                    } catch (NumberFormatException e) {
+                        edad = 0;
+                    }
+                    String preferencias = partes[3].trim();
+                    Usuario usuario = new Usuario(nombre, edad, preferencias);
+                    return usuario;
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error al leer el usuario: " + e.getMessage());
+        }
+        return null;
     }
 
     public static boolean eliminarUsuario(String nombreUsuario) {
